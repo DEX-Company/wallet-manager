@@ -89,10 +89,10 @@ There are two types of account/key storage: local or host
 
 ### Command Parameters
 
-*  <<address>> is any valid ethereum address, starting with optional _0x_.
-*  <<password>> is the acount password or key phrase.
-*  <<local_address>> is the account address saved in the local wallet.
-*  <<host_address>> is the account saved on the host Parity node.
-*  <<network_name or url>> can be a network name such as 'spree', 'nile', 'pacific', or
+*  '<address>' is any valid ethereum address, starting with optional _0x_.
+*  '<password>' is the acount password or key phrase.
+*  '<local_address>' is the account address saved in the local wallet.
+*  '<host_address>' is the account saved on the host Parity node.
+*  '<network_name or url>' can be a network name such as 'spree', 'nile', 'pacific', or
 the actual URL of the Parity Node to access.
 
