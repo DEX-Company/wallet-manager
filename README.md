@@ -93,6 +93,6 @@ There are two types of account/key storage: local or host
 *  `<password>` is the acount password or key phrase.
 *  `<local_address>` is the account address saved in the local wallet.
 *  `<host_address>` is the account saved on the host Parity node.
-*  `<network_name or url>` can be a network name such as 'spree', 'nile', 'pacific', or
+*  `<network_name or url>` can be a network name such as `spree`, `nile`, `pacific`, or
 the actual URL of the Parity Node to access, such as `http://localhost:8545`.
 
