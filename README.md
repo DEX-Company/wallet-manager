@@ -23,6 +23,12 @@ There are two types of account/key storage: local or host
     wallet_manager.py delete <address> <password> <network_name or url>
 ```
 
+*  List accounts on local and host
+```
+    wallet_manager.py list
+    wallet_manager.py list <network_name or url>
+```
+
 *  Copy local account to host
 ```
     wallet_manager.py copy <local_address> <password> <network_name or url>
