@@ -13,77 +13,77 @@ There are two types of account/key storage: local or host
 
 *  Create account local and host
 ```
-    wallet_manager.py add <password>
+    wallet_manager.py add <password> [local]
     wallet_manager.py add <password> <network_name or url>
 ```
 
 *  Delete account on local and host
 ```
-    wallet_manager.py delete <address> <password>
+    wallet_manager.py delete <address> <password> [local]
     wallet_manager.py delete <address> <password> <network_name or url>
 ```
 
 *  List accounts on local and host
 ```
-    wallet_manager.py list
+    wallet_manager.py list [local]
     wallet_manager.py list <network_name or url>
 ```
 
 *  Copy local account to host
 ```
-    wallet_manager.py copy <local_address> <password> <network_name or url>
+    wallet_manager.py copy local <local_address> <password> <network_name or url>
 ```
 
 *  Copy host account to local
 ```
-    wallet_manager.py copy <network_name or url> <host_address> <password>
+    wallet_manager.py copy <network_name or url> <host_address> <password> [local]
 ```
 
 *  Export local and host account to JSON ( default export mode )
 ```
-    wallet_manager.py export <address> <password>
+    wallet_manager.py export <address> <password> [local]
     wallet_manager.py export <address> <password> <network_name or url>
 ```
 
 *  Export local and host account to private key
 ```
-    wallet_manager.py export <address> <password>  --as_key
+    wallet_manager.py export <address> <password> [local] --as_key
     wallet_manager.py export <address> <password> <network_name or url> --as_key
 ```
 
 *  Import local and host account from JSON key file ( default import mode )
 ```
-    wallet_manager.py import <json_file or string> <password>
+    wallet_manager.py import <json_file or string> <password> [local]
     wallet_manager.py import <json_file or string> <password> <network_name or url>
 ```
 
 *  Import local and host account from private key
 ```
-    wallet_manager.py import <private_key> <password> --as_key
+    wallet_manager.py import <private_key> <password> [local] --as_key
     wallet_manager.py import <private_key> <password> <network_name or url> --as_key
 ```
 
 *  Change account password on local and host
 ```
-    wallet_manager.py password <address> <old_password> <new_password>
+    wallet_manager.py password <address> <old_password> <new_password> [local]
     wallet_manager.py password <address> <old_password> <new_password> <network_name or url>
 ```
 
 *  Request ether from faucet
 ```
-    wallet_manager.py get ether <address>
+    wallet_manager.py get ether <address> [local]
     wallet_manager.py get ether <address> <network_name or url>
 ```
 
 *  Request Ocean tokens on test networks
 ```
-    wallet_manager.py get tokens <address> <password> <amount>
-    wallet_manager.py get tokens <address> <password> <network_name or url> <amount>
+    wallet_manager.py get tokens <address> <password> [local] [amount]
+    wallet_manager.py get tokens <address> <password> <network_name or url> [amount]
 ```
 
 *  Transfer Ocean tokens to another account
 ```
-    wallet_manager.py send tokens <from_address> <password> <to_address>
+    wallet_manager.py send tokens <from_address> <password> [local] <to_address>
     wallet_manager.py send tokens <from_address> <password> <network_name or url> <to_address>
 ```
 
@@ -106,6 +106,10 @@ There are two types of account/key storage: local or host
     *  `nile`    : https://nile.dev-ocean.com
     *  `pacific` : https://pacific.oceanprotocol.com
     *  `host`    : http://localhost:8545
+    *  `local`   : Use the local address and private key
 
 or the actual URL of the Parity Node to access, such as `http://192.168.1.1:8545`.
+or a the network name `local` which directs the app to use the local address on disk.
 
+*  `[amount]` optional amount that will default to 10 tokens.
+*  `[local]` optional `local` keyword that can be omitted to imply the local address/key
