@@ -12,13 +12,13 @@ There are two types of account/key storage: local or host
 *  Create account local and host
 ```
     wallet_manager.py add <password>
-    wallet_manager.py add <network_name or url> <password>
+    wallet_manager.py add <password> <network_name or url>
 ```
 
 *  Delete account on local and host
 ```
     wallet_manager.py delete <address> <password>
-    wallet_manager.py delete <network_name or url> <address> <password>
+    wallet_manager.py delete <address> <password> <network_name or url>
 ```
 
 *  Copy local account to host
@@ -31,16 +31,22 @@ There are two types of account/key storage: local or host
     wallet_manager.py copy <network_name or url> <host_address> <password>
 ```
 
+*  Export local and host account to JSON ( default export mode )
+```
+    wallet_manager.py export <address> <password>  --as_json
+    wallet_manager.py export <address> <password> <network_name or url> --as_json
+```
+
 *  Export local and host account to private key
 ```
     wallet_manager.py export <address> <password>  --as_key
-    wallet_manager.py export <network_name or url> <address> <password> --as_key
+    wallet_manager.py export <address> <password> <network_name or url> --as_key
 ```
 
-*  Export local and host account to JSON
+*  Import local and host account from JSON key file ( default import mode )
 ```
-    wallet_manager.py export <address> <password>  --as_json
-    wallet_manager.py export <network_name or url> <address> <password> --as_json
+    wallet_manager.py import <json_file> <password>
+    wallet_manager.py import <json_file> <password> <network_name or url>
 ```
 
 *  Import local and host account from private key
@@ -49,40 +55,34 @@ There are two types of account/key storage: local or host
     wallet_manager.py import <private_key> <password> <network_name or url>
 ```
 
-*  Import local and host account from JSON key file
-```
-    wallet_manager.py import <json_file> <password>
-    wallet_manager.py import <json_file> <password> <network_name or url>
-```
-
 *  Change account password on local and host
 ```
     wallet_manager.py password <address> <old_password> <new_password>
-    wallet_manager.py password <network_name or url> <address> <old_password> <new_password>
+    wallet_manager.py password <address> <old_password> <new_password> <network_name or url>
 ```
 
 *  Request ether from faucet
 ```
     wallet_manager.py request_ether <address>
-    wallet_manager.py request_ether <network_name or url> <address>
+    wallet_manager.py request_ether <address> <network_name or url>
 ```
 
 *  Request Ocean tokens on test networks
 ```
     wallet_manager.py request_tokens <address> <password> <amount>
-    wallet_manager.py request_tokens <network_name or url> <address> <password> <amount>
+    wallet_manager.py request_tokens <address> <password> <network_name or url> <amount>
 ```
 
 *  Transfer Ocean tokens to another account
 ```
     wallet_manager.py send_tokens <from_address> <password> <to_address>
-    wallet_manager.py send_tokens <network_name or url> <from_address> <password> <to_address>
+    wallet_manager.py send_tokens <from_address> <password> <network_name or url> <to_address>
 ```
 
 *  Transfer Ocean ether to another account
 ```
     wallet_manager.py send_ether <from_address> <password> <to_address>
-    wallet_manager.py send_ether <network_name or url> <from_address> <password> <to_address>
+    wallet_manager.py send_ether <from_address> <password> <network_name or url> <to_address>
 ```
 
 
