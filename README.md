@@ -7,6 +7,7 @@ There are two types of account/key storage: local or host
 
 *Host key* is saved on the Parity node, and all transactions can be signed on the Parity node via the ethereum xmlprc calls.
 
+
 ## Possible Commands to implement
 
 *  Create account local and host
@@ -85,4 +86,13 @@ There are two types of account/key storage: local or host
     wallet_manager.py send_ether <from_address> <password> <network_name or url> <to_address>
 ```
 
+
+### Command Parameters
+
+*  <address> is any valid ethereum address, starting with optional _0x_.
+*  <password> is the acount password or key phrase.
+*  <local_address> is the account address saved in the local wallet.
+*  <host_address> is the account saved on the host Parity node.
+*  <network_name or url> can be a network name such as 'spree', 'nile', 'pacific', or
+the actual URL of the Parity Node to access.
 
