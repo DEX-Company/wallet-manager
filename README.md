@@ -96,10 +96,10 @@ There are two types of account/key storage: local or host
 *  `<host_address>` is the account saved on the host Parity node.
 *  `<network_name or url>` can be a predifined url nodes using a network name such as:
 
-    *  `spree`: http://localhost:8545
-    *  `nile` : https://nile.dev-ocean.com
+    *  `spree`   : http://localhost:8545
+    *  `nile`    : https://nile.dev-ocean.com
     *  `pacific` : https://pacific.oceanprotocol.com
-    *  `local`   : http://localhost:8545
+    *  `host`    : http://localhost:8545
 
 or the actual URL of the Parity Node to access, such as `http://192.168.1.1:8545`.
 
