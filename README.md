@@ -12,14 +12,14 @@ There are two types of account/key storage: local or host
 
 *  Create account local and host
 ```
-    wallet_manager.py add <password>
-    wallet_manager.py add <password> <network_name or url>
+    wallet_manager.py _add_ <password>
+    wallet_manager.py _add_ <password> <network_name or url>
 ```
 
 *  Delete account on local and host
 ```
-    wallet_manager.py delete <address> <password>
-    wallet_manager.py delete <address> <password> <network_name or url>
+    wallet_manager.py _del_ete <address> <password>
+    wallet_manager.py _del_ete <address> <password> <network_name or url>
 ```
 
 *  Copy local account to host
@@ -64,26 +64,26 @@ There are two types of account/key storage: local or host
 
 *  Request ether from faucet
 ```
-    wallet_manager.py request_ether <address>
-    wallet_manager.py request_ether <address> <network_name or url>
+    wallet_manager.py get ether <address>
+    wallet_manager.py get ether <address> <network_name or url>
 ```
 
 *  Request Ocean tokens on test networks
 ```
-    wallet_manager.py request_tokens <address> <password> <amount>
-    wallet_manager.py request_tokens <address> <password> <network_name or url> <amount>
+    wallet_manager.py get tokens <address> <password> <amount>
+    wallet_manager.py get tokens <address> <password> <network_name or url> <amount>
 ```
 
 *  Transfer Ocean tokens to another account
 ```
-    wallet_manager.py send_tokens <from_address> <password> <to_address>
-    wallet_manager.py send_tokens <from_address> <password> <network_name or url> <to_address>
+    wallet_manager.py send tokens <from_address> <password> <to_address>
+    wallet_manager.py send tokens <from_address> <password> <network_name or url> <to_address>
 ```
 
 *  Transfer Ocean ether to another account
 ```
-    wallet_manager.py send_ether <from_address> <password> <to_address>
-    wallet_manager.py send_ether <from_address> <password> <network_name or url> <to_address>
+    wallet_manager.py send ether <from_address> <password> <to_address>
+    wallet_manager.py send ether <from_address> <password> <network_name or url> <to_address>
 ```
 
 
