@@ -3,8 +3,9 @@ Provide account and wallet management on the Ocean Network
 
 There are two types of account/key storage: local or host
 
-Local key is saved as a JSON file and all transactions need to be signed by the app.
-Host key is saved on the Parity node, and all transactions can be signed on the Parity node via the ethereum xmlprc calls. 
+*Local key* is saved as a JSON file and all transactions need to be signed by the app.
+
+*Host key* is saved on the Parity node, and all transactions can be signed on the Parity node via the ethereum xmlprc calls. 
 
 ## Possible Commands to implement
 
