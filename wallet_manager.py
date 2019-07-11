@@ -6,6 +6,7 @@ NETWORK_NAMES = {
     'spree': 'http://localhost:8545',
     'nile': 'https://nile.dev-ocean.com',
     'pacific': 'https://pacific.oceanprotocol.com',
+    'host': 'http://localhost:8545',
 }
 
 BIN_NAME = 'wallet_manager.py'
@@ -86,7 +87,7 @@ COMMAND_LIST = {
             'send tokens <from_address> <password> <network_name or url> <to_address>',
         ],
     },
-    'send_erher': {
+    'send_ether': {
         'description': 'Transfer Ocean ether to another account',
         'params': [
             'send ether <from_address> <password> <to_address>',
