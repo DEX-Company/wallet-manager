@@ -12,14 +12,14 @@ There are two types of account/key storage: local or host
 
 *  Create account local and host
 ```
-    wallet_manager.py _add_ <password>
-    wallet_manager.py _add_ <password> <network_name or url>
+    wallet_manager.py add <password>
+    wallet_manager.py add <password> <network_name or url>
 ```
 
 *  Delete account on local and host
 ```
-    wallet_manager.py _del_ete <address> <password>
-    wallet_manager.py _del_ete <address> <password> <network_name or url>
+    wallet_manager.py delete <address> <password>
+    wallet_manager.py delete <address> <password> <network_name or url>
 ```
 
 *  Copy local account to host
