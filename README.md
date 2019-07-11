@@ -34,8 +34,8 @@ There are two types of account/key storage: local or host
 
 *  Export local and host account to JSON ( default export mode )
 ```
-    wallet_manager.py export <address> <password>  --as_json
-    wallet_manager.py export <address> <password> <network_name or url> --as_json
+    wallet_manager.py export <address> <password>
+    wallet_manager.py export <address> <password> <network_name or url>
 ```
 
 *  Export local and host account to private key
@@ -46,14 +46,14 @@ There are two types of account/key storage: local or host
 
 *  Import local and host account from JSON key file ( default import mode )
 ```
-    wallet_manager.py import <json_file> <password>
-    wallet_manager.py import <json_file> <password> <network_name or url>
+    wallet_manager.py import <json_file or string> <password>
+    wallet_manager.py import <json_file or string> <password> <network_name or url>
 ```
 
 *  Import local and host account from private key
 ```
-    wallet_manager.py import <private_key> <password>
-    wallet_manager.py import <private_key> <password> <network_name or url>
+    wallet_manager.py import <private_key> <password> --as_key
+    wallet_manager.py import <private_key> <password> <network_name or url> --as_key
 ```
 
 *  Change account password on local and host
