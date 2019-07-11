@@ -1,5 +1,6 @@
 # Wallet Manager
-Provide account and wallet management on the Ocean Network
+
+**Provide account and wallet management on the Ocean Network**
 
 There are two types of account/key storage: local or host
 
