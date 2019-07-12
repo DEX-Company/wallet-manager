@@ -1,11 +1,24 @@
 
+from web3 import (
+    Web3,
+    HTTPProvider
+)
+from eth_account import Account as EthAccount
 
 
 class WalletManager():
 
-    def __init__(self):
+    NETWORK_NAMES = {
+        'spree': 'http://localhost:8545',
+        'nile': 'https://nile.dev-ocean.com',
+        'pacific': 'https://pacific.oceanprotocol.com',
+        'host': 'http://localhost:8545',
+    }
+
+    def __init__(self, key_path=None):
         self._errorMessage = None
         self._commands = None
+        self._key_path = key_path
 
     def document_new(sef):
         return {
@@ -16,9 +29,20 @@ class WalletManager():
             ],
         }
     def command_new(self):
+        address = ''
         password = self._validatePassword(1)
         network_name = self._validateNetworkName(2, 'local')
-        print(password, network_name)
+        if network_name == 'local':
+            local_account = web3.eth.account.create(password)
+            address = local_account.address
+            wallet = json.dumps(EthAccount.encrypt(local_account.privateKey, password))
+            # write private key JSON to a folder
+        else:
+            node_url = self._network_name_to_url(network_name)
+            if self._is_node_url_valid(node_url):
+                web3 = Web3(HTTPProvider(node_url))
+                address = web3.personal.newAccount(password)
+        return address
 
     def command_test(self):
         print(self._commands)
@@ -56,3 +80,13 @@ class WalletManager():
         if network_name:
             network_name = network_name.lower()
         return network_name
+
+    def _network_name_to_url(self, network_name)
+        if network_name in self.NETWORK_NAMES:
+            return self.NETWORK_NAME[network_name]
+
+    def _is_node_url_valid(self, node_url):
+        if node_url is None:
+            self._errorMessage = f'Cannot find network name "{network_name}"'
+            return False
+        return True
