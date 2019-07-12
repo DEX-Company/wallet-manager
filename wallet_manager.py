@@ -2,6 +2,8 @@
 
 import argparse
 
+from wallet_manager.wallet_manager import WalletManager
+
 NETWORK_NAMES = {
     'spree': 'http://localhost:8545',
     'nile': 'https://nile.dev-ocean.com',
@@ -12,11 +14,11 @@ NETWORK_NAMES = {
 BIN_NAME = 'wallet_manager.py'
 
 COMMAND_LIST = {
-    'add': {
+    'new': {
         'description': 'Create account local and host',
         'params' :[
-            'add <password> [local]',
-            'add <password> <network_name or url>',
+            'new <password> [local]',
+            'new <password> <network_name or url>',
         ],
     },
     'delete': {
@@ -136,7 +138,11 @@ def main():
         show_command_help()
         return
 
-
+    manager = WalletManager()
+    manager.process(args.commands)
+    if manager.isError:
+        print(manager.errorMessage)
+        show_command_help()
 
 if __name__ == '__main__':
     main()
