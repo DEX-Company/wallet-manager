@@ -34,7 +34,7 @@ class CommandProcessor():
     def command_new(self):
         address = ''
         password = self._validate_password(1)
-        network_name = self._validate_network_name(2, 'local')
+        network_name = self._validate_network_mame(2, 'local')
         if network_name == 'local':
             address = self._wallet.new_account(password)
         else:

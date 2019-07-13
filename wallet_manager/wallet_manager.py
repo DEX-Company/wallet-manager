@@ -18,7 +18,7 @@ class WalletManager():
             web3 = Web3(HTTPProvider(url))
             address = web3.personal.newAccount(password)
         else:
-            local_account = web3.eth.account.create(password)
+            local_account = EthAccount.create(password)
             address = local_account.address
             key_value = EthAccount.encrypt(local_account.privateKey, password)
             self._key_chain.set_key(address, key_value)

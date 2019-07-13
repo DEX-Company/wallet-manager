@@ -63,8 +63,8 @@ def main():
 
     processor.process(args.commands)
 
-    if processor.isError:
-        print(processor.errorMessage)
+    if processor.is_error:
+        print(processor.error_message)
         show_command_help(processor)
 
 if __name__ == '__main__':

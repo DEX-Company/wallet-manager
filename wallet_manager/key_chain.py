@@ -8,12 +8,12 @@ class KeyChain():
         self._key_list = {}
 
     def load(self):
-        if os.path.exists(_filename):
-            with open(_filename, 'r') as fp:
+        if os.path.exists(self._filename):
+            with open(self._filename, 'r') as fp:
                 self._key_list = json.load(fp)
 
     def save(self):
-        with open(_filename, 'w') as fp:
+        with open(self._filename, 'w') as fp:
             json.dump(self._key_list, fp)
 
     def get_key(self, address):
@@ -24,6 +24,6 @@ class KeyChain():
 
     def delete_key(slef, address):
         del self._key_list[address]
-        
+
     def address_list(self):
         return self._key_list.names()
