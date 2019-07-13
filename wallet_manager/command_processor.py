@@ -19,7 +19,7 @@ class CommandProcessor():
     }
 
     def __init__(self, key_chain_filename=None):
-        self._errorMessage = None
+        self._error_message = None
         self._commands = None
         self._wallet = WalletManager(key_chain_filename=key_chain_filename)
 
@@ -33,14 +33,14 @@ class CommandProcessor():
         }
     def command_new(self):
         address = ''
-        password = self._validatePassword(1)
-        network_name = self._validateNetworkName(2, 'local')
+        password = self._validate_password(1)
+        network_name = self._validate_network_name(2, 'local')
         if network_name == 'local':
-            address = self._wallet.new_account_local(password)
+            address = self._wallet.new_account(password)
         else:
             node_url = self._network_name_to_url(network_name)
             if self._is_node_url_valid(node_url):
-                address = self._wallet.new_account_host(password, node_url)
+                address = self._wallet.new_account(password, node_url)
         return address
 
     def document_delete(self):
@@ -53,7 +53,17 @@ class CommandProcessor():
         }
 
     def command_delete(self):
-        pass
+        result = False
+        address = self._validate_address(1)
+        password = self._validate_password(2)
+        network_name = self._validate_network_name(2, 'local')
+        if network_name == 'local':
+            result = self._wallet.delete_account(address, password)
+        else:
+            node_url = self._network_name_to_url(network_name)
+            if self._is_node_url_valid(node_url):
+                result = self._wallet.delete_account(address, password, node_url)
+        return result
 
     def document_copy(self):
         return [
@@ -152,7 +162,7 @@ class CommandProcessor():
         ]
     def command_send(self):
         pass
-        
+
     def command_password(self):
         pass
 
@@ -173,7 +183,7 @@ class CommandProcessor():
             method = getattr(self, method_name)
             method()
         else:
-            self._errorMessage = f'cannot find method "{method_name}"'
+            self._error_message = f'cannot find method "{method_name}"'
 
     def command_list(self):
         items = []
@@ -189,22 +199,22 @@ class CommandProcessor():
         return items
 
     @property
-    def errorMessage(self):
-        return self._errorMessage
+    def error_message(self):
+        return self._error_message
 
     @property
-    def isError(self):
-        return not self._errorMessage is None
+    def is_error(self):
+        return not self._error_message is None
 
-    def _validatePassword(self, index,):
+    def _validate_password(self, index,):
         password = None
         if index < len(self._commands):
             password = self._commands[index]
         if not isinstance(password, str):
-            self._errorMessage = 'please provide a password'
+            self._error_message = 'please provide a password'
         return password
 
-    def _validateNetworkName(self, index, default=None):
+    def _validate_network_mame(self, index, default=None):
         network_name = default
         if index < len(self._commands):
             network_name = self._commands[index]
@@ -218,7 +228,7 @@ class CommandProcessor():
 
     def _is_node_url_valid(self, node_url):
         if node_url is None:
-            self._errorMessage = f'Cannot find network name "{network_name}"'
+            self._error_essage = f'Cannot find network name "{network_name}"'
             return False
         return True
 

@@ -22,5 +22,8 @@ class KeyChain():
     def set_key(self, address, key_item):
         self._key_list[address] = key_item
 
+    def delete_key(slef, address):
+        del self._key_list[address]
+        
     def address_list(self):
         return self._key_list.names()
