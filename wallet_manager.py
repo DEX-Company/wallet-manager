@@ -66,6 +66,8 @@ def main():
     if processor.is_error:
         print(processor.error_message)
         show_command_help(processor)
+    else:
+        print("\n".join(processor.output))
 
 if __name__ == '__main__':
     main()

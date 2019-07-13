@@ -21,6 +21,7 @@ class CommandProcessor():
     def __init__(self, key_chain_filename=None):
         self._error_message = None
         self._commands = None
+        self._output = []
         self._wallet = WalletManager(key_chain_filename=key_chain_filename)
 
     def document_new(sef):
@@ -41,7 +42,8 @@ class CommandProcessor():
             node_url = self._network_name_to_url(network_name)
             if self._is_node_url_valid(node_url):
                 address = self._wallet.new_account(password, node_url)
-        return address
+        self._add_output(f'new account address {address}')
+        return True
 
     def document_delete(self):
         return {
@@ -238,3 +240,10 @@ class CommandProcessor():
         for param in value['params']:
             items.append(f'    {param}')
         return items
+
+    def _add_output(self, text):
+        self._output.append(text)
+
+    @property
+    def output(self):
+        return self._output
