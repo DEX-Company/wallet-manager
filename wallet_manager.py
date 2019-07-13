@@ -4,12 +4,7 @@ import argparse
 
 from wallet_manager.wallet_manager import WalletManager
 
-NETWORK_NAMES = {
-    'spree': 'http://localhost:8545',
-    'nile': 'https://nile.dev-ocean.com',
-    'pacific': 'https://pacific.oceanprotocol.com',
-    'host': 'http://localhost:8545',
-}
+DEFAULT_KEY_CHAIN_FILENAME = 'key_chain.json'
 
 BIN_NAME = 'wallet_manager.py'
 
@@ -107,7 +102,7 @@ def show_command_help():
 
     print('\nPossible network names:')
     print('local               : Local key storage')
-    for name, url in NETWORK_NAMES.items():
+    for name, url in WalletManager.NETWORK_NAMES.items():
         print(f'{name:20}: {url}')
 
 def main():
@@ -115,21 +110,27 @@ def main():
     command_list_text = '","'.join(COMMAND_LIST)
     parser.add_argument(
         'commands',
-        nargs='*',
-        type=str,
-        help=f'The type of commands: "{command_list_text}"',
+        nargs = '*',
+        type = str,
+        help = f'The type of commands: "{command_list_text}"',
     )
 
     parser.add_argument(
         '-d', '--debug',
-        action='store_true',
-        help='show debug log',
+        action = 'store_true',
+        help = 'show debug log',
     )
 
     parser.add_argument(
         '--help-commands',
-        action='store_true',
-        help='show the help for the possible commands'
+        action = 'store_true',
+        help = 'show the help for the possible commands'
+    )
+
+    parser.add_argument(
+        '-k', '--key-chain',
+        help = f'Key chain file to save and read local keys. Default {DEFAULT_KEY_CHAIN_FILENAME}',
+        default = DEFAULT_KEY_CHAIN_FILENAME
     )
 
     args = parser.parse_args()
@@ -138,7 +139,11 @@ def main():
         show_command_help()
         return
 
-    manager = WalletManager()
+    if len(args.commands) == 0:
+        show_command_help()
+        return
+
+    manager = WalletManager(key_chain_filename=args.key_chain)
     manager.process(args.commands)
     if manager.isError:
         print(manager.errorMessage)

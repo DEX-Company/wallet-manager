@@ -5,6 +5,7 @@ from web3 import (
 )
 from eth_account import Account as EthAccount
 
+from wallet_manager.key_chain import KeyChain
 
 class WalletManager():
 
@@ -15,10 +16,10 @@ class WalletManager():
         'host': 'http://localhost:8545',
     }
 
-    def __init__(self, key_path=None):
+    def __init__(self, key_chain_filename=None):
         self._errorMessage = None
         self._commands = None
-        self._key_path = key_path
+        self._key_chain = KeyChain(key_chain_filename)
 
     def document_new(sef):
         return {
@@ -35,8 +36,9 @@ class WalletManager():
         if network_name == 'local':
             local_account = web3.eth.account.create(password)
             address = local_account.address
-            wallet = json.dumps(EthAccount.encrypt(local_account.privateKey, password))
-            # write private key JSON to a folder
+            key_value = EthAccount.encrypt(local_account.privateKey, password)
+            self._key_chain.set_key(address, key_value)
+            self._key_chain.save()
         else:
             node_url = self._network_name_to_url(network_name)
             if self._is_node_url_valid(node_url):
@@ -81,7 +83,7 @@ class WalletManager():
             network_name = network_name.lower()
         return network_name
 
-    def _network_name_to_url(self, network_name)
+    def _network_name_to_url(self, network_name):
         if network_name in self.NETWORK_NAMES:
             return self.NETWORK_NAME[network_name]
 
