@@ -1,25 +1,44 @@
 import inspect
 import re
+import os.path
+import json
 
 from web3 import (
     Web3,
     HTTPProvider
 )
 from eth_account import Account as EthAccount
+from starfish import Ocean
+from starfish.account import Account as OceanAccount
 
 from wallet_manager.wallet_manager import WalletManager
+
+
+class CommandProcessError(Exception):
+    pass
 
 class CommandProcessor():
 
     NETWORK_NAMES = {
-        'spree': 'http://localhost:8545',
-        'nile': 'https://nile.dev-ocean.com',
-        'pacific': 'https://pacific.oceanprotocol.com',
-        'host': 'http://localhost:8545',
+        'spree': {
+            'url': 'http://localhost:8545',
+            'faucet' : None,
+        },
+        'nile': {
+            'url': 'https://nile.dev-ocean.com',
+            'faucet' : 'https://faucet.nile.dev-ocean.com',
+        },
+        'pacific': {
+            'url': 'https://pacific.oceanprotocol.com',
+            'faucet' : 'https://faucet.oceanprotocol.com',
+        },
+        'host': {
+            'url': 'http://localhost:8545',
+            'faucet' : None,
+        }
     }
 
     def __init__(self, key_chain_filename=None):
-        self._error_message = None
         self._commands = None
         self._output = []
         self._wallet = WalletManager(key_chain_filename=key_chain_filename)
@@ -32,18 +51,17 @@ class CommandProcessor():
                 'new <password> <network_name or url>',
             ],
         }
+
     def command_new(self):
         address = ''
         password = self._validate_password(1)
-        network_name = self._validate_network_mame(2, 'local')
+        network_name = self._validate_network_name_url(2, 'local')
         if network_name == 'local':
             address = self._wallet.new_account(password)
         else:
-            node_url = self._network_name_to_url(network_name)
-            if self._is_node_url_valid(node_url):
-                address = self._wallet.new_account(password, node_url)
+            node_url = self._validate_network_name_to_url(network_name)
+            address = self._wallet.new_account(password, node_url)
         self._add_output(f'new account address {address}')
-        return True
 
     def document_delete(self):
         return {
@@ -55,17 +73,15 @@ class CommandProcessor():
         }
 
     def command_delete(self):
-        result = False
         address = self._validate_address(1)
         password = self._validate_password(2)
-        network_name = self._validate_network_name(2, 'local')
+        network_name = self._validate_network_name_url(3, 'local')
         if network_name == 'local':
             result = self._wallet.delete_account(address, password)
         else:
-            node_url = self._network_name_to_url(network_name)
-            if self._is_node_url_valid(node_url):
-                result = self._wallet.delete_account(address, password, node_url)
-        return result
+            node_url = self._validate_network_name_to_url(network_name)
+            self._wallet.delete_account(address, password, node_url)
+        self._add_output(f'delete account {address}')
 
     def document_copy(self):
         return [
@@ -93,8 +109,16 @@ class CommandProcessor():
                 'list <network_name or url>',
             ],
         }
+
     def command_list(self):
-        pass
+        result = None
+        network_name = self._validate_network_name_url(1, 'local')
+        if network_name == 'local':
+            result = self._wallet.list_accounts()
+        else:
+            node_url = self._validate_network_name_to_url(network_name)
+            result = self._wallet.list_accounts(node_url)
+        self._add_output(result)
 
     def document_export(self):
         return {
@@ -105,6 +129,21 @@ class CommandProcessor():
             ],
         }
 
+    def command_export(self):
+        address = self._validate_address(1)
+        password = self._validate_password(2)
+        network_name = self._validate_network_name_url(3, 'local')
+
+        if network_name == 'local':
+            result = self._wallet.export_account_json(address, password)
+        else:
+            node_url = self._validate_network_name_to_url(network_name)
+            result = self._wallet.export_account_json(address, password, node_url)
+
+        self._add_output(f'Address {address} key:')
+        self._add_output(result)
+
+
     def document_import(self):
         return {
             'description': 'Import local and host account from JSON key file, or private key',
@@ -113,8 +152,17 @@ class CommandProcessor():
                 '[--as_json] [--as_key] import <json_file or string> <password> <network_name or url>',
             ],
         }
+
     def command_import(self):
-        pass
+        json_text = self._validate_json_text(1)
+        password = self._validate_password(2)
+        network_name = self._validate_network_name_url(3, 'local')
+        if network_name == 'local':
+            result = self._wallet.import_account_json(json_text, password)
+        else:
+            node_url = self._validate_network_name_to_url(network_name)
+            result = self._wallet.import_account_json(json_text, password, node_url)
+
 
     def document_password(self):
         return {
@@ -125,39 +173,69 @@ class CommandProcessor():
             ],
         }
 
+    def command_password(self):
+        pass
+
     def document_get(self):
         return [
             {
                 'description': 'Request ether from faucet',
                 'params': [
-                    'get ether <address> [local]',
-                    'get ether <address> <network_name or url>',
+                    'get ether <address> <network_name or faucet url>',
                 ],
             },
             {
                 'description': 'Request Ocean tokens on test networks',
                 'params': [
-                    'get tokens <address> <password> [local] [amount]',
                     'get tokens <address> <password> <network_name or url> [amount]',
                 ],
             }
         ]
     def command_get(self):
-        pass
+        sub_command = self._validate_sub_command(1, ['ether', 'tokens'])
+        address = self._validate_address(2)
+        if sub_command == 'tokens':
+            password = self._validate_password(3)
+            network_name = self._validate_network_name_url(4)
+            amount = self._validate_amount(5, 10)
+            node_url = self._validate_network_name_to_url(network_name)
+            ocean = Ocean(keeper_url=node_url)
+            account = OceanAccount(ocean, address)
+            account.unlock(password)
+            account.request_tokens(amount)
+            self._add_output(f'{address}  ocean tokens: {account.ocean_balance}')
+        elif sub_command == 'ether':
+            network_name = self._validate_network_name_url(3)
+            faucet_url = self._validate_network_name_to_url(network_name, 'faucet')
+
+
+    def document_balance(self):
+        return {
+            'description': 'Show the ether and Ocean token balance',
+            'params': [
+                'balance <address> <network_name or faucet url>',
+            ],
+        }
+    def command_balance(self):
+        address = self._validate_address(1)
+        network_name = self._validate_network_name_url(2)
+        node_url = self._validate_network_name_to_url(network_name)
+        ocean = Ocean(keeper_url=node_url)
+        account = OceanAccount(ocean, address)
+        self._add_output(f'{address}  ocean tokens: {account.ocean_balance}')
+        self._add_output(f'{address} ether: {account.ether_balance}')
 
     def document_send(self):
         return [
             {
                 'description': 'Transfer Ocean tokens to another account',
                 'params': [
-                    'send tokens <from_address> <password> [local] <to_address>',
                     'send tokens <from_address> <password> <network_name or url> <to_address>',
                 ],
             },
             {
                 'description': 'Transfer Ocean ether to another account',
                 'params': [
-                    'send ether <from_address> <password> <to_address>',
                     'send ether <from_address> <password> <network_name or url> <to_address>',
                 ],
             }
@@ -165,18 +243,8 @@ class CommandProcessor():
     def command_send(self):
         pass
 
-    def command_password(self):
-        pass
-
-
-    def command_export(self):
-        pass
-
-
-
     def command_test(self):
         print(self._commands)
-
 
     def process(self, commands):
         self._commands = commands
@@ -185,9 +253,9 @@ class CommandProcessor():
             method = getattr(self, method_name)
             method()
         else:
-            self._error_message = f'cannot find method "{method_name}"'
+            raise CommandProcessError(f'Invalid comamnd "{commands[0]}"')
 
-    def command_list(self):
+    def list_commands(self):
         items = []
         for name in dir(self):
             if re.match('^document_', name):
@@ -200,39 +268,78 @@ class CommandProcessor():
                     items += self._expand_document_item(values)
         return items
 
-    @property
-    def error_message(self):
-        return self._error_message
-
-    @property
-    def is_error(self):
-        return not self._error_message is None
-
     def _validate_password(self, index,):
         password = None
         if index < len(self._commands):
             password = self._commands[index]
         if not isinstance(password, str):
-            self._error_message = 'please provide a password'
+            raise CommandProcessError(f'Please provide a password')
         return password
 
-    def _validate_network_mame(self, index, default=None):
+    def _validate_network_name_url(self, index, default=None):
         network_name = default
         if index < len(self._commands):
             network_name = self._commands[index]
-        if network_name:
-            network_name = network_name.lower()
+        else:
+            raise CommandProcessError(f'Please provide a network name')
         return network_name
 
-    def _network_name_to_url(self, network_name):
-        if network_name in self.NETWORK_NAMES:
-            return self.NETWORK_NAME[network_name]
+    def _validate_address(self, index):
+        if index < len(self._commands):
+            address = self._commands[index]
+            if Web3.isAddress(address):
+                return address
+            else:
+                raise CommandProcessError(f'"{address}" is not a vaild account address')
+        else:
+            raise CommandProcessError(f'Please provide an address name')
 
-    def _is_node_url_valid(self, node_url):
-        if node_url is None:
-            self._error_essage = f'Cannot find network name "{network_name}"'
-            return False
-        return True
+    def _validate_json_text(self, index):
+        if index < len(self._commands):
+            json_text = self._commands[index]
+            if os.path.exists(json_text):
+                with open(json_text, 'r') as fp:
+                    json_text = fp.read()
+            try:
+                data = json.loads(json_text)
+            except json.decoder.JSONDecodeError:
+                raise CommandProcessError(f'Please provide valid json key file or text')
+
+            return json_text
+        else:
+            raise CommandProcessError(f'Please provide json text or filename')
+
+    def _validate_network_name_to_url(self, network_name, url_type=None):
+        url = None
+        if url_type is None:
+            url_type = 'url'
+        if network_name.lower() in self.NETWORK_NAMES:
+            url = self.NETWORK_NAMES[network_name.lower()][url_type]
+        else:
+            if re.match('^http', network_name) or re.match('^/w+\.', network_name):
+                url = network_name
+        if url is None:
+            raise CommandProcessError(f'Cannot resolve network name "{network_name}" to a url')
+        return url
+
+    def _validate_sub_command(self, index, command_list):
+        command_list_text = ','.join(command_list)
+        if index < len(self._commands):
+            sub_command = self._commands[index]
+            if sub_command in command_list:
+                return sub_command
+            raise CommandProcessError(f'Invalid command "{sub_command}", one of the following commands "{command_list_text}"')
+        else:
+            raise CommandProcessError(f'Please provide one of the following commands "{command_list_text}"')
+
+    def _validate_amount(self, index, default_value=None):
+        amount = default_value
+        if index < len(self._commands):
+            amount = int(self._commands[index])
+
+        if amount is None:
+            raise CommandProcessError(f'Please provide an  "{command_list_text}"')
+        return amount
 
     def _expand_document_item(self, value):
         items = []
@@ -242,7 +349,11 @@ class CommandProcessor():
         return items
 
     def _add_output(self, text):
-        self._output.append(text)
+        if isinstance(text, str):
+            self._output.append(text)
+        else:
+            for value in text:
+                self._output.append(value)
 
     @property
     def output(self):

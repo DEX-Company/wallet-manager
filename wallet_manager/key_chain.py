@@ -6,6 +6,7 @@ class KeyChain():
     def __init__(self, filename):
         self._filename = filename
         self._key_list = {}
+        self.load()
 
     def load(self):
         if os.path.exists(self._filename):
@@ -22,8 +23,9 @@ class KeyChain():
     def set_key(self, address, key_item):
         self._key_list[address] = key_item
 
-    def delete_key(slef, address):
+    def delete_key(self, address):
         del self._key_list[address]
 
+    @property
     def address_list(self):
-        return self._key_list.names()
+        return list(self._key_list.keys())

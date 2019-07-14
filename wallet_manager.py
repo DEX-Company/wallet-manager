@@ -2,7 +2,10 @@
 
 import argparse
 
-from wallet_manager.command_processor import CommandProcessor
+from wallet_manager.command_processor import (
+    CommandProcessor,
+    CommandProcessError,
+)
 
 DEFAULT_KEY_CHAIN_FILENAME = 'key_chain.json'
 
@@ -61,13 +64,15 @@ def main():
         return
 
 
+#    try:
     processor.process(args.commands)
-
-    if processor.is_error:
-        print(processor.error_message)
-        show_command_help(processor)
-    else:
-        print("\n".join(processor.output))
+#    except CommandProcessError as e:
+#        print(e)
+#        print('\n--help-commands to view the full command list')
+#    except Exception as e:
+#        print(e)
+#    else:
+    print("\n".join(processor.output))
 
 if __name__ == '__main__':
     main()
