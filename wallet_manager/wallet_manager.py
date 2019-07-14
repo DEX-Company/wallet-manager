@@ -65,3 +65,15 @@ class WalletManager():
             data = json.loads(json_text)
             self._key_chain.set_key(data['address'], data)
             self._key_chain.save()
+
+    def send_ether(self, from_address, password, to_address, amount, url=None):
+        if url:
+            web3 = Web3(HTTPProvider(url))
+            tx_hash = web3.personal.sendTransaction( {
+                'from': from_account.address,
+                'to': to_address,
+                'value': amount,
+            }, from_account.password)
+            return web3.eth.waitForTransactionReceipt(tx_hash)
+        else:
+            pass
