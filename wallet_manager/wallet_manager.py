@@ -1,5 +1,6 @@
 
 import json
+import requests
 
 from web3 import (
     Web3,
@@ -15,7 +16,9 @@ def as_attrdict(val):
 class WalletManager():
 
     def __init__(self, key_chain_filename=None):
-        self._key_chain = KeyChain(key_chain_filename)
+        if key_chain_filename:
+            self._key_chain = KeyChain(key_chain_filename)
+
 
     def new_account(self, password, url=None):
         address = None
@@ -66,14 +69,41 @@ class WalletManager():
             self._key_chain.set_key(data['address'], data)
             self._key_chain.save()
 
-    def send_ether(self, from_address, password, to_address, amount, url=None):
+    def balance_ether(self, address, url):
+        web3 = Web3(HTTPProvider(url))
+        return web3.eth.getBalance(address)
+
+    def send_ether(self, from_address, password, to_address, amount, url=None, timeout=120):
         if url:
             web3 = Web3(HTTPProvider(url))
             tx_hash = web3.personal.sendTransaction( {
-                'from': from_account.address,
+                'from': from_address,
                 'to': to_address,
-                'value': amount,
-            }, from_account.password)
-            return web3.eth.waitForTransactionReceipt(tx_hash)
+                'value': Web3.toWei(amount, 'ether'),
+            }, password)
+            return web3.eth.waitForTransactionReceipt(tx_hash, timeout=timeout)
         else:
             pass
+
+#     'to': '0xF0109fC8DF283027b6285cc889F5aA624EaC1F55',
+#     'value': 1000000000,
+#     'gas': 2000000,
+#     'gasPrice': 234567897654321,
+#     'nonce': 0,
+#     'chainId': 1
+# }
+
+    def get_ether(self, address, url):
+        data  = {
+            'address': address,
+            'agent': 'curl'
+        }
+        json_data = json.dumps(data)
+        headers = {'content-type': 'application/json'}
+        # print(json_data)
+        response = requests.post(url, json=data, headers=headers)
+        # print(response, response.text, response.status_code)
+        if response.status_code == 200:
+            return True
+        print(f'failed {response.text}')
+        return False

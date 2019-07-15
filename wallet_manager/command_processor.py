@@ -30,7 +30,7 @@ class CommandProcessor():
         },
         'pacific': {
             'url': 'https://pacific.oceanprotocol.com',
-            'faucet' : 'https://faucet.oceanprotocol.com',
+            'faucet' : 'https://faucet.oceanprotocol.com/faucet',
         },
         'host': {
             'url': 'http://localhost:8545',
@@ -207,7 +207,8 @@ class CommandProcessor():
         elif sub_command == 'ether':
             network_name = self._validate_network_name_url(3)
             faucet_url = self._validate_network_name_to_url(network_name, 'faucet')
-
+            print(network_name, faucet_url)
+            self._wallet.get_ether(address, faucet_url)
 
     def document_balance(self):
         return {
@@ -230,18 +231,36 @@ class CommandProcessor():
             {
                 'description': 'Transfer Ocean tokens to another account',
                 'params': [
-                    'send tokens <from_address> <password> <network_name or url> <to_address>',
+                    'send tokens <from_address> <password> <network_name or url> <to_address> <amount>',
                 ],
             },
             {
                 'description': 'Transfer Ocean ether to another account',
                 'params': [
-                    'send ether <from_address> <password> <network_name or url> <to_address>',
+                    'send ether <from_address> <password> <network_name or url> <to_address> <amount>',
                 ],
             }
         ]
     def command_send(self):
-        pass
+        sub_command = self._validate_sub_command(1, ['ether', 'tokens'])
+
+        from_address = self._validate_address(1, field_name='from_address')
+        password = self._validate_password(2)
+        network_name = self._validate_network_name_url(3)
+        node_url = self._validate_network_name_to_url(network_name)
+        to_address = self._validate_address(4, field_name='to_address')
+        amount = self._validate_amount(5)
+
+        if sub_command == 'tokens':
+            ocean = Ocean(keeper_url=node_url)
+            account = OceanAccount(ocean, from_address)
+            account.unlock(password)
+            account.transfer_token(to_address, amount)
+        elif sub_command == 'ether':
+            ocean = Ocean(keeper_url=node_url)
+            account = OceanAccount(ocean, from_address)
+            account.unlock(password)
+            account.transfer_ether(to_address, amount)
 
     def command_test(self):
         print(self._commands)
@@ -284,13 +303,15 @@ class CommandProcessor():
             raise CommandProcessError(f'Please provide a network name')
         return network_name
 
-    def _validate_address(self, index):
+    def _validate_address(self, index, field_name=None):
+        if field_name is None:
+            field_name = 'address'
         if index < len(self._commands):
             address = self._commands[index]
             if Web3.isAddress(address):
                 return address
             else:
-                raise CommandProcessError(f'"{address}" is not a vaild account address')
+                raise CommandProcessError(f'"{address}" is not a vaild account {field_name}')
         else:
             raise CommandProcessError(f'Please provide an address name')
 
