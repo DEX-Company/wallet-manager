@@ -11,6 +11,7 @@ before_install:
 - cd barge
 - ./start_ocean.sh --no-brizo --no-pleuston --no-aquarius --no-surfer --no-koi --local-spree-node 2>&1 > barge.log &
 - cd ..
+- sleep 120
 - ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
 install: pip install -U tox-travis
 script: tox
