@@ -22,13 +22,15 @@ def main():
         address = wallet.new_account(PASSWORD, NODE_URL )
         print(f' new address {address}')
         address_list.append({'address': address, 'is_done': False})
-        wallet.get_ether(address, FAUCET_URL)
+        result, response_code, response_text = wallet.get_ether(address, FAUCET_URL)
+        if not result:
+            print(f'error on getting ether {response_code} {response_text}')
         for item in address_list:
             if not item['is_done']:
                 balance = wallet.balance_ether(item['address'], NODE_URL)
                 if balance > 0:
                     print('sending ether')
-                    print(wallet.send_ether(address, PASSWORD, STORAGE_ADDRESS, balance - 0.00001, NODE_URL, 480))
+                    wallet.send_ether(address, PASSWORD, STORAGE_ADDRESS, balance - 0.00001, NODE_URL, 480)
                     item['is_done'] = True
 if __name__ == '__main__':
     main()
