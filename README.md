@@ -36,7 +36,7 @@ There are two types of account/key storage: local or host
 
 *  Copy host account to local
 ```
-    wallet_manager.py copy <network_name or url> <host_address> <password> [local]
+    wallet_manager.py copy <network_name or url> <host_address> <password> local
 ```
 
 *  Export local and host account to JSON ( default export mode )
@@ -77,8 +77,8 @@ There are two types of account/key storage: local or host
 
 *  Request Ocean tokens on test networks
 ```
-    wallet_manager.py get tokens <address> <password> [local] [amount]
-    wallet_manager.py get tokens <address> <password> <network_name or url> [amount]
+    wallet_manager.py get tokens <address> <password> <amount> [local]
+    wallet_manager.py get tokens <address> <password> <amount> <network_name or url>
 ```
 
 *  Transfer Ocean tokens to another account
@@ -96,6 +96,9 @@ There are two types of account/key storage: local or host
 
 ### Command Parameters
 
+Any field name within a `<field_name>` must be entered.
+Any field name within a `[field_name]` can be an option.
+
 *  `<address>` is any valid ethereum address, starting with optional _0x_.
 *  `<password>` is the acount password or key phrase.
 *  `<local_address>` is the account address saved in the local wallet.
@@ -111,5 +114,5 @@ There are two types of account/key storage: local or host
 or the actual URL of the Parity Node to access, such as `http://192.168.1.1:8545`.
 or a the network name `local` which directs the app to use the local address on disk.
 
-*  `[amount]` optional amount that will default to 10 tokens.
-*  `[local]` optional `local` keyword that can be omitted to imply the local address/key
+*  `<amount>` amount of ocean tokens.
+*  `[local]` optional `local` keyword that can be omitted to imply the local address/key.

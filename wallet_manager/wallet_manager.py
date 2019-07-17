@@ -60,6 +60,17 @@ class WalletManager():
             result = json.dumps(self._key_chain.get_key(address))
         return result
 
+    def export_account_key(self, address, password, url=None):
+        if url:
+            web3 = Web3(HTTPProvider(url))
+            raw_data = web3.manager.request_blocking('parity_exportAccount', [address, password])
+            key_json = json.dumps(raw_data, default=as_attrdict)
+
+        else:
+            key_json = json.dumps(self._key_chain.get_key(address))
+        return EthAccount.decrypt(key_json, password)
+
+
     def import_account_json (self, json_text, password, url=None):
         if url:
             web3 = Web3(HTTPProvider(url))
@@ -68,6 +79,15 @@ class WalletManager():
             data = json.loads(json_text)
             self._key_chain.set_key(data['address'], data)
             self._key_chain.save()
+
+    def import_account_key(self, address, raw_key, password, url=None):
+        if url:
+            web3 = Web3(HTTPProvider(url))
+            address = web3.manager.request_blocking('parity_newAccountFromSecret', [raw_key, password])
+        else:
+            self._key_chain.set_key(address, EthAccount.encrypt(raw_key, password))
+            self._key_chain.save()
+        return address
 
     def balance_ether(self, address, url):
         web3 = Web3(HTTPProvider(url))
@@ -96,7 +116,7 @@ class WalletManager():
     def get_ether(self, address, url):
         data  = {
             'address': address,
-            'agent': 'curl'
+            'agent': 'commons'
         }
         json_data = json.dumps(data)
         headers = {'content-type': 'application/json'}
