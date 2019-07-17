@@ -39,7 +39,7 @@ dev_requirements = [
 
 
 packages = []
-for d, _, _ in os.walk('starfish'):
+for d, _, _ in os.walk('wallet_manager'):
     if os.path.exists(join(d, '__init__.py')):
         packages.append(d.replace(os.path.sep, '.'))
 
