@@ -64,7 +64,7 @@ setup(
     long_description_content_type='text/markdown',
     include_package_data=True,
     keywords='wallet manager',
-    name='walet-manager',
+    name='wallet-manager',
     packages=packages,
     setup_requires=setup_requirements,
     test_suite='tests',
