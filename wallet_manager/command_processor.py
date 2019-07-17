@@ -347,7 +347,7 @@ class CommandProcessor():
             name = 'url'
         if network_name.lower() in self.NETWORK_NAMES:
             value = self.NETWORK_NAMES[network_name.lower()][url_type]
-        elif name == 'url'
+        elif name == 'url':
             if re.match('^http', network_name) or re.match('^/w+\.', network_name):
                 value = network_name
         if value is None and validate:
