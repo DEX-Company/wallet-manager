@@ -346,13 +346,13 @@ class CommandProcessor():
         if name is None:
             name = 'url'
         if network_name.lower() in self.NETWORK_NAMES:
-            value = self.NETWORK_NAMES[network_name.lower()][url_type]
+            value = self.NETWORK_NAMES[network_name.lower()][name]
         elif name == 'url':
             if re.match('^http', network_name) or re.match('^/w+\.', network_name):
                 value = network_name
         if value is None and validate:
             raise CommandProcessError(f'Cannot resolve network name "{network_name}" to a value')
-        return url
+        return value
 
     def _validate_sub_command(self, index, command_list):
         command_list_text = ','.join(command_list)

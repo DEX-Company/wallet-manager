@@ -18,7 +18,7 @@ until [ ${CONTRACTS_READY} -eq 0 ] || [ ${RETRY_COUNT} -eq 120 ]; do
     docker cp ${KEEPER_CONTRACTS_DOCKER_ID}:/keeper-contracts/artifacts/. ./${CONTRACT_FOLDER}/
     CONTRACT_FILES=(${CONTRACT_FOLDER}/*.json)
     # test for the ready file and a json file
-    if [ -f "${CONTRACT_FILES}" ] && [ -f "${CONTRACT_FOLDER}/ready" ]; then    
+    if [ -f "${CONTRACT_FILES}" ] && [ -f "${CONTRACT_FOLDER}/ready" ]; then
         CONTRACTS_READY=0
         break
     fi
@@ -34,3 +34,9 @@ fi
 # docker cp ${KEEPER_CONTRACTS_DOCKER_ID}:/keeper-contracts/artifacts/. ./${CONTRACT_FOLDER}/
 echo "copied over the following contracts:"
 ls -1 ${CONTRACT_FOLDER}
+
+echo "looking at docker parity files"
+PARITY_CONTRACTS_DOCKER_ID=$(docker container ls | grep parity | awk '{print $1}')
+docker exec $PARITY_CONTRACTS_DOCKER_ID ls -alrt
+docker exec $PARITY_CONTRACTS_DOCKER_ID ls -lrt .local
+docker exec $PARITY_CONTRACTS_DOCKER_ID ls -lrt .local/keys
