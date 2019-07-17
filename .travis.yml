@@ -15,6 +15,7 @@ before_install:
 - cd ..
 - sleep 120
 - ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
+- ls -lrtah $HOME
 install: pip install -U tox-travis
 script: tox
 deploy:
