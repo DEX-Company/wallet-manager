@@ -13,8 +13,8 @@ before_install:
 - cd ..
 - sleep 120
 - ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
-- sudo chown -R travis:travis $HOME/.ocean
-- ls -lrtah $HOME
+- docker inspect ocean_keeper-node
+- sudo ls -lrth /var/lib/docker/volumes/
 install: pip install -U tox-travis
 script: tox
 deploy:
