@@ -35,7 +35,7 @@ fi
 echo "copied over the following contracts:"
 ls -1 ${CONTRACT_FOLDER}
 
-# echo "looking at docker parity files"
-# PARITY_CONTRACTS_DOCKER_ID=$(docker container ls | grep parity | awk '{print $1}')
-# ENV_VARS="-e PATH=/bin"
-# docker exec $PARITY_CONTRACTS_DOCKER_ID /bin/chmod +x .local
+echo "looking at docker parity files"
+PARITY_CONTRACTS_DOCKER_ID=$(docker container ls | grep parity | awk '{print $1}')
+ENV_VARS="--env PATH=/bin"
+docker exec $ENV_VARS $PARITY_CONTRACTS_DOCKER_ID /bin/chown -R partiy:parity /home/parity/.local

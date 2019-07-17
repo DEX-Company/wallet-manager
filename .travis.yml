@@ -12,9 +12,6 @@ before_install:
 - ./start_ocean.sh --no-brizo --no-pleuston --no-aquarius --no-surfer --no-koi --local-spree-node 2>&1 > barge.log &
 - cd ..
 - sleep 120
-- docker inspect ocean_keeper-node
-- sudo chown -R travis:travis /var/lib/docker/volumes
-- sudo ls -lrth /var/lib/docker/volumes/
 - ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
 install: pip install -U tox-travis
 script: tox
