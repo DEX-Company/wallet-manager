@@ -33,7 +33,6 @@ def test_accounts_local(resources):
     # delete account
     wallet.delete_account(address, password)
     account_list = wallet.list_accounts()
-    assert(account_list)
     assert(address not in account_list)
 
 
@@ -147,4 +146,3 @@ def test_send_ether(resources):
 
     wallet.delete_account(local_address, password)
     wallet.delete_account(host_address, password, resources.host_url)
-

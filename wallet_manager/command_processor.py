@@ -22,19 +22,22 @@ class CommandProcessor():
     NETWORK_NAMES = {
         'spree': {
             'url': 'http://localhost:8545',
-            'faucet' : None,
+            'faucet_account' : ['0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0', 'secret'],
         },
         'nile': {
             'url': 'https://nile.dev-ocean.com',
-            'faucet' : 'https://faucet.nile.dev-ocean.com',
+            'faucet_url' : 'https://faucet.nile.dev-ocean.com',
         },
         'pacific': {
             'url': 'https://pacific.oceanprotocol.com',
-            'faucet' : 'https://faucet.oceanprotocol.com/faucet',
+            'faucet_url' : 'https://faucet.oceanprotocol.com/faucet',
+        },
+        'duero': {
+            'url': 'https://duero.dev-ocean.com',
+            'faucet_url' : 'https://faucet.duero.dev-ocean.com/faucet',
         },
         'host': {
             'url': 'http://localhost:8545',
-            'faucet' : None,
         }
     }
 
@@ -59,7 +62,7 @@ class CommandProcessor():
         if network_name == 'local':
             address = self._wallet.new_account(password)
         else:
-            node_url = self._validate_network_name_to_url(network_name)
+            node_url = self._validate_network_name_to_value(network_name)
             address = self._wallet.new_account(password, node_url)
         self._add_output(f'new account address {address}')
 
@@ -79,7 +82,7 @@ class CommandProcessor():
         if network_name == 'local':
             result = self._wallet.delete_account(address, password)
         else:
-            node_url = self._validate_network_name_to_url(network_name)
+            node_url = self._validate_network_name_to_value(network_name)
             self._wallet.delete_account(address, password, node_url)
         self._add_output(f'delete account {address}')
 
@@ -116,7 +119,7 @@ class CommandProcessor():
         if network_name == 'local':
             result = self._wallet.list_accounts()
         else:
-            node_url = self._validate_network_name_to_url(network_name)
+            node_url = self._validate_network_name_to_value(network_name)
             result = self._wallet.list_accounts(node_url)
         self._add_output(result)
 
@@ -137,7 +140,7 @@ class CommandProcessor():
         if network_name == 'local':
             result = self._wallet.export_account_json(address, password)
         else:
-            node_url = self._validate_network_name_to_url(network_name)
+            node_url = self._validate_network_name_to_value(network_name)
             result = self._wallet.export_account_json(address, password, node_url)
 
         self._add_output(f'Address {address} key:')
@@ -160,7 +163,7 @@ class CommandProcessor():
         if network_name == 'local':
             result = self._wallet.import_account_json(json_text, password)
         else:
-            node_url = self._validate_network_name_to_url(network_name)
+            node_url = self._validate_network_name_to_value(network_name)
             result = self._wallet.import_account_json(json_text, password, node_url)
 
 
@@ -198,7 +201,7 @@ class CommandProcessor():
             password = self._validate_password(3)
             network_name = self._validate_network_name_url(4)
             amount = self._validate_amount(5, 10)
-            node_url = self._validate_network_name_to_url(network_name)
+            node_url = self._validate_network_name_to_value(network_name)
             ocean = Ocean(keeper_url=node_url)
             account = OceanAccount(ocean, address)
             account.unlock(password)
@@ -206,9 +209,17 @@ class CommandProcessor():
             self._add_output(f'{address}  ocean tokens: {account.ocean_balance}')
         elif sub_command == 'ether':
             network_name = self._validate_network_name_url(3)
-            faucet_url = self._validate_network_name_to_url(network_name, 'faucet')
-            print(network_name, faucet_url)
-            self._wallet.get_ether(address, faucet_url)
+            faucet_url = self._validate_network_name_to_value(network_name, False, 'faucet_url')
+            if faucet_url:
+                self._wallet.get_ether(address, faucet_url)
+                return
+            faucet_account = self._validate_network_name_to_value(network_name, False, 'faucet_account')
+            if faucet_account:
+                # if list then it's a address/password of an account that has ether
+                node_url = self._validate_network_name_to_value(network_name)
+                self._wallet.send_ether(faucet_account[0], faucet_account[1], address, 3, node_url)
+                return
+            raise CommandProcessError(f'Warning: The network name {network_name} does not have a faucet')
 
     def document_balance(self):
         return {
@@ -220,7 +231,7 @@ class CommandProcessor():
     def command_balance(self):
         address = self._validate_address(1)
         network_name = self._validate_network_name_url(2)
-        node_url = self._validate_network_name_to_url(network_name)
+        node_url = self._validate_network_name_to_value(network_name)
         ocean = Ocean(keeper_url=node_url)
         account = OceanAccount(ocean, address)
         self._add_output(f'{address}  ocean tokens: {account.ocean_balance}')
@@ -247,7 +258,7 @@ class CommandProcessor():
         from_address = self._validate_address(1, field_name='from_address')
         password = self._validate_password(2)
         network_name = self._validate_network_name_url(3)
-        node_url = self._validate_network_name_to_url(network_name)
+        node_url = self._validate_network_name_to_value(network_name)
         to_address = self._validate_address(4, field_name='to_address')
         amount = self._validate_amount(5)
 
@@ -330,17 +341,17 @@ class CommandProcessor():
         else:
             raise CommandProcessError(f'Please provide json text or filename')
 
-    def _validate_network_name_to_url(self, network_name, url_type=None):
-        url = None
-        if url_type is None:
-            url_type = 'url'
+    def _validate_network_name_to_value(self, network_name, validate=True, name=None):
+        value = None
+        if name is None:
+            name = 'url'
         if network_name.lower() in self.NETWORK_NAMES:
-            url = self.NETWORK_NAMES[network_name.lower()][url_type]
-        else:
+            value = self.NETWORK_NAMES[network_name.lower()][url_type]
+        elif name == 'url'
             if re.match('^http', network_name) or re.match('^/w+\.', network_name):
-                url = network_name
-        if url is None:
-            raise CommandProcessError(f'Cannot resolve network name "{network_name}" to a url')
+                value = network_name
+        if value is None and validate:
+            raise CommandProcessError(f'Cannot resolve network name "{network_name}" to a value')
         return url
 
     def _validate_sub_command(self, index, command_list):

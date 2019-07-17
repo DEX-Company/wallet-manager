@@ -26,6 +26,9 @@ class KeyChain():
     def delete_key(self, address):
         del self._key_list[address]
 
+    def is_key(self, address):
+        return address in self._key_list
+        
     @property
     def address_list(self):
         return list(self._key_list.keys())
