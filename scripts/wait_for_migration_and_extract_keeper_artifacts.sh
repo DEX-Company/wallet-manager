@@ -37,6 +37,7 @@ ls -1 ${CONTRACT_FOLDER}
 
 echo "looking at docker parity files"
 docker container ls
-PARITY_CONTRACTS_DOCKER_ID=$(docker container ls | grep parity | awk '{print $1}')
+PARITY_CONTRACTS_DOCKER_ID=$(docker container ls | grep '/bin/parity --conf' | awk '{print $1}')
 ENV_VARS="--env PATH=/bin"
-docker run $PARITY_CONTRACTS_DOCKER_ID /bin/chown -R parity:parity /home/parity/.local
+echo "docker id $PARITY_CONTRACTS_DOCKER_ID"
+docker exec $PARITY_CONTRACTS_DOCKER_ID /bin/chown -R parity:parity /home/parity/.local
