@@ -40,4 +40,5 @@ docker container ls
 PARITY_CONTRACTS_DOCKER_ID=$(docker container ls | grep '/bin/parity --conf' | awk '{print $1}')
 ENV_VARS="--env PATH=/bin"
 echo "docker id $PARITY_CONTRACTS_DOCKER_ID"
-docker exec $PARITY_CONTRACTS_DOCKER_ID /bin/chown -R parity:parity /home/parity/.local
+docker exec $PARITY_CONTRACTS_DOCKER_ID /bin/ls -lth /home/parity/.local
+docker exec $PARITY_CONTRACTS_DOCKER_ID /sbin/sudo /bin/chown -R parity:parity /home/parity/.local
