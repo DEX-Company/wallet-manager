@@ -35,11 +35,6 @@ fi
 echo "copied over the following contracts:"
 ls -1 ${CONTRACT_FOLDER}
 
-echo "looking at docker parity files"
-docker container ls
+echo "Set the ./local folder owned by parity for new account creation on the parity node"
 PARITY_CONTRACTS_DOCKER_ID=$(docker container ls | grep '/bin/parity --conf' | awk '{print $1}')
-ENV_VARS='--env PATH=$PATH:/bin/usr/bin/sbin/usr/sbin'
-echo "docker id $PARITY_CONTRACTS_DOCKER_ID"
-# docker exec $PARITY_CONTRACTS_DOCKER_ID /bin/ls -ltha /home/parity
-# docker exec $PARITY_CONTRACTS_DOCKER_ID /bin/ls -ltha /bin
 docker exec -u root $PARITY_CONTRACTS_DOCKER_ID /bin/chown -R parity:parity /home/parity/.local
