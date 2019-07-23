@@ -255,12 +255,12 @@ class CommandProcessor():
     def command_send(self):
         sub_command = self._validate_sub_command(1, ['ether', 'tokens'])
 
-        from_address = self._validate_address(1, field_name='from_address')
-        password = self._validate_password(2)
-        network_name = self._validate_network_name_url(3)
+        from_address = self._validate_address(2, field_name='from_address')
+        password = self._validate_password(3)
+        network_name = self._validate_network_name_url(4)
         node_url = self._validate_network_name_to_value(network_name)
-        to_address = self._validate_address(4, field_name='to_address')
-        amount = self._validate_amount(5)
+        to_address = self._validate_address(5, field_name='to_address')
+        amount = self._validate_amount(6)
 
         if sub_command == 'tokens':
             ocean = Ocean(keeper_url=node_url)
@@ -347,9 +347,8 @@ class CommandProcessor():
             name = 'url'
         if network_name.lower() in self.NETWORK_NAMES:
             value = self.NETWORK_NAMES[network_name.lower()][name]
-        elif name == 'url':
-            if re.match('^http', network_name) or re.match('^/w+\.', network_name):
-                value = network_name
+        if re.match('^http', network_name) or re.match('^/w+\.', network_name):
+            value = network_name
         if value is None and validate:
             raise CommandProcessError(f'Cannot resolve network name "{network_name}" to a value')
         return value
