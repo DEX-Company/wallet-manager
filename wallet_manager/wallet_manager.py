@@ -113,6 +113,9 @@ class WalletManager():
             tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
 
         else:
+            from_address = Web3.toChecksumAddress(from_address)
+            to_address =  Web3.toChecksumAddress(to_address)
+            web3.personal.unlockAccount(from_address, password)
             tx_hash = web3.personal.sendTransaction( {
                 'from': from_address,
                 'to': to_address,
@@ -124,10 +127,13 @@ class WalletManager():
     def get_ether(self, address, url):
         data  = {
             'address': address,
-            'agent': 'commons'
+            'agent': 'server'
         }
+        print(url)
         headers = {'content-type': 'application/json'}
         response = requests.post(url, json=data, headers=headers)
+        print('response ', response.text)
         if response.status_code == 200:
             return True, None, None
+        print('error ', response.text)
         return False, response.status_code, response.text

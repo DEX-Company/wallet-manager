@@ -26,7 +26,7 @@ class CommandProcessor():
         },
         'nile': {
             'url': 'https://nile.dev-ocean.com',
-            'faucet_url' : 'https://faucet.nile.dev-ocean.com',
+            'faucet_url' : 'https://nile.dev-ocean.com/faucet',
         },
         'pacific': {
             'url': 'https://pacific.oceanprotocol.com',
@@ -268,10 +268,11 @@ class CommandProcessor():
             account.unlock(password)
             account.transfer_token(to_address, amount)
         elif sub_command == 'ether':
-            ocean = Ocean(keeper_url=node_url)
-            account = OceanAccount(ocean, from_address)
-            account.unlock(password)
-            account.transfer_ether(to_address, amount)
+            self._wallet.send_ether(from_address, password, to_address, amount, node_url)
+#            ocean = Ocean(keeper_url=node_url)
+#            account = OceanAccount(ocean, from_address)
+#            account.unlock(password)
+#            account.transfer_ether(to_address, amount)
 
     def command_test(self):
         print(self._commands)
