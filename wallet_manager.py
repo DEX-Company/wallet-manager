@@ -9,20 +9,20 @@ from wallet_manager.command_processor import (
 
 DEFAULT_KEY_CHAIN_FILENAME = 'key_chain.json'
 
-BIN_NAME = 'wallet_manager.py'
+APP_NAME = 'wallet_manager.py'
 
 def show_command_help(processor):
-    items = processor.command_list()
+    items = processor.command_document_list(APP_NAME)
     print('\nThe following commands can be used:\n')
 #    for name, item in COMMAND_LIST.items():
 #        print(f'\n{item["description"]}')
 #        for param in item['params']:
 #            print(f'    {BIN_NAME} {param}')
     print("\n".join(items))
-    print('\nPossible network names:')
+    print('\nPossible network names can be one of the following:')
     print('local               : Local key storage')
-    for name, url in CommandProcessor.NETWORK_NAMES.items():
-        print(f'{name:20}: {url}')
+    for name, item in CommandProcessor.NETWORK_NAMES.items():
+        print(f'{name:20}: {item["url"]}')
 
 def main():
     parser = argparse.ArgumentParser('Ocean Drop')
@@ -64,15 +64,15 @@ def main():
         return
 
 
-#    try:
-    processor.process(args.commands)
-#    except CommandProcessError as e:
-#        print(e)
-#        print('\n--help-commands to view the full command list')
-#    except Exception as e:
-#        print(e)
-#    else:
-    print("\n".join(processor.output))
+    try:
+        processor.process(args.commands)
+    except CommandProcessError as e:
+        print(e)
+        print('\n--help-commands to view the full command list')
+    except Exception as e:
+        print(e)
+    else:
+        print("\n".join(processor.output))
 
 if __name__ == '__main__':
     main()

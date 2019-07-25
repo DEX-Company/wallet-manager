@@ -286,7 +286,7 @@ class CommandProcessor():
         else:
             raise CommandProcessError(f'Invalid comamnd "{commands[0]}"')
 
-    def list_commands(self):
+    def command_document_list(self, app_name):
         items = []
         for name in dir(self):
             if re.match('^document_', name):
@@ -294,9 +294,9 @@ class CommandProcessor():
                 values = method()
                 if isinstance(values, list):
                     for value in values:
-                        items += self._expand_document_item(value)
+                        items += self._expand_document_item(app_name, value)
                 else:
-                    items += self._expand_document_item(values)
+                    items += self._expand_document_item(app_name, values)
         return items
 
     def _validate_password(self, index,):
@@ -373,11 +373,11 @@ class CommandProcessor():
             raise CommandProcessError(f'Please provide an  "{command_list_text}"')
         return amount
 
-    def _expand_document_item(self, value):
+    def _expand_document_item(self, app_name, value):
         items = []
         items.append(f'\n{value["description"]}')
         for param in value['params']:
-            items.append(f'    {param}')
+            items.append(f'    {app_name} {param}')
         return items
 
     def _add_output(self, text):
