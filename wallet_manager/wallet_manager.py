@@ -29,6 +29,9 @@ class WalletManager():
         if url:
             web3 = Web3(HTTPProvider(url))
             address = web3.personal.newAccount(password)
+            accounts = web3.personal.listAccounts
+            if not address in accounts:
+                raise NameError(f'Unable to create a new account')
         else:
             local_account = EthAccount.create(password)
             address = local_account.address
@@ -41,6 +44,10 @@ class WalletManager():
     def get_chain_status(self, url):
         web3 = Web3(HTTPProvider(url))
         return web3.manager.request_blocking('parity_chainStatus', [])
+
+    def get_chain_name(self, url):
+        web3 = Web3(HTTPProvider(url))
+        return web3.manager.request_blocking('parity_chain', [])
 
     def delete_account(self, address, password, url=None):
         if url:

@@ -19,19 +19,13 @@ APP_NAME = 'wallet_manager.py'
 def show_command_help(processor):
     items = processor.command_document_list(APP_NAME)
     print('\nThe following commands can be used:\n')
-#    for name, item in COMMAND_LIST.items():
-#        print(f'\n{item["description"]}')
-#        for param in item['params']:
-#            print(f'    {BIN_NAME} {param}')
     print("\n".join(items))
-    print('\nPossible network names can be one of the following:')
-    print('local               : Local key storage')
+    print('\nPossible network names can be one of the following:\n')
     for name, item in CommandProcessor.NETWORK_NAMES.items():
-        print(f'{name:20}: {item["url"]}')
+        print(f'{name:20}: {item["description"]}')
 
 def main():
     parser = argparse.ArgumentParser('Ocean Drop')
-#    command_list_text = '","'.join(COMMAND_LIST)
     parser.add_argument(
         'commands',
         nargs = '*',
@@ -76,7 +70,6 @@ def main():
     if len(args.commands) == 0:
         show_command_help(processor)
         return
-
 
     try:
         processor.process(args.commands)

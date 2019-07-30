@@ -28,71 +28,29 @@ class CommandProcessor():
     NETWORK_NAMES = {
         'local': {
             'description': 'No network, only access to local account setup',
-            'is_local': True,
-            'is_host': False,
         },
         'spree': {
             'description': 'Spree network running on a local barge',
-            'is_local': True,
-            'is_host': True,
-            'url': 'http://localhost:8545',
-            'faucet_account' : ['0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0', 'secret'],
-        },
-        # host_spree is the same as spree
-        'host_spree': {
-            'description': 'Spree network running on a local barge',
-            'is_local': True,
-            'is_host': True,
             'url': 'http://localhost:8545',
             'faucet_account' : ['0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0', 'secret'],
         },
         'nile': {
             'description': 'Nile network access to remote network node',
-            'is_local': False,
-            'is_host': True,
             'url': 'https://nile.dev-ocean.com',
-            'faucet_url' : 'https://faucet.nile.dev-ocean.com/faucet',
-        },
-        'host_nile': {
-            'description': 'Nile network running on a local barge',
-            'is_local': True,
-            'is_host': True,
-            'url': 'http://localhost:8545',
             'faucet_url' : 'https://faucet.nile.dev-ocean.com/faucet',
         },
         'pacific': {
             'description': 'Pacific network access to remote network node',
-            'is_local': False,
-            'is_host': True,
             'url': 'https://pacific.oceanprotocol.com',
             'faucet_url' : 'https://faucet.oceanprotocol.com/faucet',
         },
-        'host_pacific': {
-            'description': 'Pacific network running on a local barge',
-            'is_local': False,
-            'is_host': True,
-            'url': 'https://pacific.oceanprotocol.com',
-            'faucet_url' : 'https://faucet.oceanprotocol.com/faucet',
-        },
-
         'duero': {
             'description': 'Duero network access to remote network node',
-            'is_local': False,
-            'is_host': True,
-            'url': 'https://duero.dev-ocean.com',
-            'faucet_url' : 'https://faucet.duero.dev-ocean.com/faucet',
-        },
-        'host_duero': {
-            'description': 'Duero network running on a local barge',
-            'is_local': False,
-            'is_host': True,
             'url': 'https://duero.dev-ocean.com',
             'faucet_url' : 'https://faucet.duero.dev-ocean.com/faucet',
         },
         'host': {
             'description': 'Local node running on barge',
-            'is_local': True,
-            'is_host': True,
             'url': 'http://localhost:8545',
         }
     }
@@ -270,8 +228,10 @@ class CommandProcessor():
             logger.info(f'created temp account {request_address}')
             ocean = Ocean(keeper_url=node_url)
             account = OceanAccount(ocean, request_address, password)
-            faucet_url = self._validate_network_name_to_value(network_name, False, 'faucet_url')
-            logger.debug('requesting ether from faucet')
+            chain_name = self._wallet.get_chain_name(node_url)
+            logger.debug(f'chain name is {chain_name}')
+            faucet_url = self._validate_network_name_to_value(chain_name, False, 'faucet_url')
+            logger.debug(f'requesting ether from faucet at {faucet_url}')
             self._wallet.get_ether(request_address, faucet_url)
 
             logger.debug('wating for ether to be available in register account')
@@ -315,8 +275,10 @@ class CommandProcessor():
             self._add_output(f'sent {amount} ocean tokens and {ether_amount:.4f} ether to account {address}')
 
         elif sub_command == 'ether':
-            faucet_url = self._validate_network_name_to_value(network_name, False, 'faucet_url')
             node_url = self._validate_network_name_to_value(network_name)
+            chain_name = self._wallet.get_chain_name(node_url)
+            logger.debug(f'chain name is {chain_name}')
+            faucet_url = self._validate_network_name_to_value(chain_name, False, 'faucet_url')
             if faucet_url:
                 self._wallet.get_ether(address, faucet_url)
                 ocean = Ocean(keeper_url=node_url)
@@ -367,7 +329,7 @@ class CommandProcessor():
         node_url = self._validate_network_name_to_value(network_name)
         ocean = Ocean(keeper_url=node_url)
         account = OceanAccount(ocean, address)
-        self._add_output(f'{address}  ocean tokens: {account.ocean_balance}')
+        self._add_output(f'{address} ocean tokens: {account.ocean_balance}')
         self._add_output(f'{address} ether: {account.ether_balance}')
 
     def document_send(self):
