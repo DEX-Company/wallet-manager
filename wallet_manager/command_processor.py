@@ -27,10 +27,12 @@ class CommandProcessor():
 
     NETWORK_NAMES = {
         'local': {
+            'description': 'No network, only access to local account setup',
             'is_local': True,
             'is_host': False,
         },
         'spree': {
+            'description': 'Spree network running on a local barge',
             'is_local': True,
             'is_host': True,
             'url': 'http://localhost:8545',
@@ -38,36 +40,57 @@ class CommandProcessor():
         },
         # host_spree is the same as spree
         'host_spree': {
+            'description': 'Spree network running on a local barge',
             'is_local': True,
             'is_host': True,
             'url': 'http://localhost:8545',
             'faucet_account' : ['0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0', 'secret'],
         },
         'nile': {
+            'description': 'Nile network access to remote network node',
             'is_local': False,
             'is_host': True,
             'url': 'https://nile.dev-ocean.com',
             'faucet_url' : 'https://faucet.nile.dev-ocean.com/faucet',
         },
         'host_nile': {
+            'description': 'Nile network running on a local barge',
             'is_local': True,
             'is_host': True,
             'url': 'http://localhost:8545',
             'faucet_url' : 'https://faucet.nile.dev-ocean.com/faucet',
         },
         'pacific': {
+            'description': 'Pacific network access to remote network node',
             'is_local': False,
             'is_host': True,
             'url': 'https://pacific.oceanprotocol.com',
             'faucet_url' : 'https://faucet.oceanprotocol.com/faucet',
         },
+        'host_pacific': {
+            'description': 'Pacific network running on a local barge',
+            'is_local': False,
+            'is_host': True,
+            'url': 'https://pacific.oceanprotocol.com',
+            'faucet_url' : 'https://faucet.oceanprotocol.com/faucet',
+        },
+
         'duero': {
+            'description': 'Duero network access to remote network node',
+            'is_local': False,
+            'is_host': True,
+            'url': 'https://duero.dev-ocean.com',
+            'faucet_url' : 'https://faucet.duero.dev-ocean.com/faucet',
+        },
+        'host_duero': {
+            'description': 'Duero network running on a local barge',
             'is_local': False,
             'is_host': True,
             'url': 'https://duero.dev-ocean.com',
             'faucet_url' : 'https://faucet.duero.dev-ocean.com/faucet',
         },
         'host': {
+            'description': 'Local node running on barge',
             'is_local': True,
             'is_host': True,
             'url': 'http://localhost:8545',
