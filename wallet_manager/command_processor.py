@@ -2,6 +2,8 @@ import inspect
 import re
 import os.path
 import json
+import secrets
+import time
 
 from web3 import (
     Web3,
@@ -13,6 +15,7 @@ from starfish.account import Account as OceanAccount
 
 from wallet_manager.wallet_manager import WalletManager
 
+DEFAULT_REQUEST_TOKEN_AMOUNT = 10
 
 class CommandProcessError(Exception):
     pass
@@ -26,7 +29,7 @@ class CommandProcessor():
         },
         'nile': {
             'url': 'https://nile.dev-ocean.com',
-            'faucet_url' : 'https://nile.dev-ocean.com/faucet',
+            'faucet_url' : 'https://faucet.nile.dev-ocean.com/faucet',
         },
         'pacific': {
             'url': 'https://pacific.oceanprotocol.com',
@@ -182,44 +185,96 @@ class CommandProcessor():
     def document_get(self):
         return [
             {
-                'description': 'Request ether from faucet',
+                'description': 'Get ether from faucet. The amount is only used in local spree network',
                 'params': [
-                    'get ether <address> <network_name or faucet url>',
+                    'get ether <address> <network_name or faucet url> [amount]',
                 ],
             },
             {
-                'description': 'Request Ocean tokens on test networks',
+                'description': 'Get Ocean tokens on test networks, using a temporary transfer account to request tokens',
                 'params': [
-                    'get tokens <address> <password> <network_name or url> [amount]',
+                    'get tokens <address> <network_name or url> [amount]',
                 ],
             }
         ]
     def command_get(self):
         sub_command = self._validate_sub_command(1, ['ether', 'tokens'])
         address = self._validate_address(2)
+        network_name = self._validate_network_name_url(3)
+        amount = self._validate_amount(4, DEFAULT_REQUEST_TOKEN_AMOUNT)
         if sub_command == 'tokens':
-            password = self._validate_password(3)
-            network_name = self._validate_network_name_url(4)
-            amount = self._validate_amount(5, 10)
             node_url = self._validate_network_name_to_value(network_name)
+            # create a request acocunt on the test network
+
+            # request the ocean tokens amount to the temp account
+
+            print('chain status', self._wallet.get_chain_status(node_url))
+
+            password = secrets.token_hex(32)
+            request_address = self._wallet.new_account(password, node_url)
+            print(f'created temp account {request_address}')
+            time.sleep(2)
             ocean = Ocean(keeper_url=node_url)
-            account = OceanAccount(ocean, address)
+            account = OceanAccount(ocean, request_address, password)
+            faucet_url = self._validate_network_name_to_value(network_name, False, 'faucet_url')
+            self._wallet.get_ether(request_address, faucet_url)
+            print(f'{request_address} ether tokens: {account.ether_balance}')
+
             account.unlock(password)
             account.request_tokens(amount)
+            print(f'{request_address} ocean tokens: {account.ocean_balance}')
+            print('chain status', self._wallet.get_chain_status(node_url))
+            time.sleep(2)
+            print(f'transfer {amount} from {request_address} to {address}')
+            account.transfer_token(address, amount)
+            account.transfer_ether(address, 0.05 - 0.00000001)
+            time.sleep(2)
+
+            account = OceanAccount(ocean, address)
+
+            # delete the request account
+            # self._wallet.delete_account(request_address, password, node_url)
             self._add_output(f'{address}  ocean tokens: {account.ocean_balance}')
+
         elif sub_command == 'ether':
-            network_name = self._validate_network_name_url(3)
             faucet_url = self._validate_network_name_to_value(network_name, False, 'faucet_url')
+            node_url = self._validate_network_name_to_value(network_name)
             if faucet_url:
                 self._wallet.get_ether(address, faucet_url)
+                ocean = Ocean(keeper_url=node_url)
+                account = OceanAccount(ocean, address)
+                self._add_output(f'{address}  ether : {account.ether_balance}')
                 return
             faucet_account = self._validate_network_name_to_value(network_name, False, 'faucet_account')
             if faucet_account:
                 # if list then it's a address/password of an account that has ether
-                node_url = self._validate_network_name_to_value(network_name)
-                self._wallet.send_ether(faucet_account[0], faucet_account[1], address, 3, node_url)
+                self._wallet.send_ether(faucet_account[0], faucet_account[1], address, amount, node_url)
+                self._add_output(f'{address}  ether : {account.ether_balance}')
                 return
             raise CommandProcessError(f'Warning: The network name {network_name} does not have a faucet')
+
+    def document_request(self):
+        return [
+            {
+                'description': 'Request Ocean tokens on a test network',
+                'params': [
+                    'request tokens <address> <password> <network_name or url> [amount]',
+                ],
+            }
+        ]
+    def command_request(self):
+        sub_command = self._validate_sub_command(1, ['tokens'])
+        address = self._validate_address(2)
+        password = self._validate_password(3)
+        network_name = self._validate_network_name_url(4)
+        amount = self._validate_amount(5, DEFAULT_REQUEST_TOKEN_AMOUNT)
+        node_url = self._validate_network_name_to_value(network_name)
+        ocean = Ocean(keeper_url=node_url)
+        account = OceanAccount(ocean, address)
+        account.unlock(password)
+        account.request_tokens(amount)
+        self._add_output(f'{address}  ocean tokens: {account.ocean_balance}')
+
 
     def document_balance(self):
         return {
@@ -269,10 +324,6 @@ class CommandProcessor():
             account.transfer_token(to_address, amount)
         elif sub_command == 'ether':
             self._wallet.send_ether(from_address, password, to_address, amount, node_url)
-#            ocean = Ocean(keeper_url=node_url)
-#            account = OceanAccount(ocean, from_address)
-#            account.unlock(password)
-#            account.transfer_ether(to_address, amount)
 
     def command_test(self):
         print(self._commands)

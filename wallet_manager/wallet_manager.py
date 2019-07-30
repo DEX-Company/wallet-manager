@@ -36,6 +36,10 @@ class WalletManager():
         return address
 
 
+    def get_chain_status(self, url):
+        web3 = Web3(HTTPProvider(url))
+        return web3.manager.request_blocking('parity_chainStatus', [])
+
     def delete_account(self, address, password, url=None):
         if url:
             web3 = Web3(HTTPProvider(url))
@@ -127,13 +131,15 @@ class WalletManager():
     def get_ether(self, address, url):
         data  = {
             'address': address,
-            'agent': 'server'
+            'agent': 'server',
         }
-        print(url)
-        headers = {'content-type': 'application/json'}
-        response = requests.post(url, json=data, headers=headers)
-        print('response ', response.text)
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+        response = requests.post(url, json = data, headers=headers)
+#        print('response ', response.text, response.status_code)
         if response.status_code == 200:
             return True, None, None
-        print('error ', response.text)
+#        print('error ', response.text)
         return False, response.status_code, response.text
