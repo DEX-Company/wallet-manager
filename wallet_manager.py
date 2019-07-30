@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
 import argparse
+import logging
+import sys
+import traceback
 
 from wallet_manager.command_processor import (
     CommandProcessor,
     CommandProcessError,
 )
+
+from wallet_manager import logger
 
 DEFAULT_KEY_CHAIN_FILENAME = 'key_chain.json'
 
@@ -55,6 +60,15 @@ def main():
     args = parser.parse_args()
     processor = CommandProcessor(key_chain_filename=args.key_chain)
 
+    if args.debug:
+        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
+        logging.getLogger('web3').setLevel(logging.INFO)
+        logging.getLogger('urllib3').setLevel(logging.INFO)
+        logging.getLogger('ocean').setLevel(logging.INFO)
+        logging.getLogger('config').setLevel(logging.INFO)
+        logger.debug('set to debug')
+
     if args.help_commands:
         show_command_help(processor)
         return
@@ -71,6 +85,8 @@ def main():
         print('\n--help-commands to view the full command list')
     except Exception as e:
         print(e)
+        if args.debug:
+            traceback.print_exc()
     else:
         print("\n".join(processor.output))
 

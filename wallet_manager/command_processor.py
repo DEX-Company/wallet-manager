@@ -4,6 +4,8 @@ import os.path
 import json
 import secrets
 import time
+import logging
+import sys
 
 from web3 import (
     Web3,
@@ -14,6 +16,7 @@ from starfish import Ocean
 from starfish.account import Account as OceanAccount
 
 from wallet_manager.wallet_manager import WalletManager
+from wallet_manager import logger
 
 DEFAULT_REQUEST_TOKEN_AMOUNT = 10
 
@@ -23,23 +26,50 @@ class CommandProcessError(Exception):
 class CommandProcessor():
 
     NETWORK_NAMES = {
+        'local': {
+            'is_local': True,
+            'is_host': False,
+        },
         'spree': {
+            'is_local': True,
+            'is_host': True,
+            'url': 'http://localhost:8545',
+            'faucet_account' : ['0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0', 'secret'],
+        },
+        # host_spree is the same as spree
+        'host_spree': {
+            'is_local': True,
+            'is_host': True,
             'url': 'http://localhost:8545',
             'faucet_account' : ['0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0', 'secret'],
         },
         'nile': {
+            'is_local': False,
+            'is_host': True,
             'url': 'https://nile.dev-ocean.com',
             'faucet_url' : 'https://faucet.nile.dev-ocean.com/faucet',
         },
+        'host_nile': {
+            'is_local': True,
+            'is_host': True,
+            'url': 'http://localhost:8545',
+            'faucet_url' : 'https://faucet.nile.dev-ocean.com/faucet',
+        },
         'pacific': {
+            'is_local': False,
+            'is_host': True,
             'url': 'https://pacific.oceanprotocol.com',
             'faucet_url' : 'https://faucet.oceanprotocol.com/faucet',
         },
         'duero': {
+            'is_local': False,
+            'is_host': True,
             'url': 'https://duero.dev-ocean.com',
             'faucet_url' : 'https://faucet.duero.dev-ocean.com/faucet',
         },
         'host': {
+            'is_local': True,
+            'is_host': True,
             'url': 'http://localhost:8545',
         }
     }
@@ -48,6 +78,7 @@ class CommandProcessor():
         self._commands = None
         self._output = []
         self._wallet = WalletManager(key_chain_filename=key_chain_filename)
+
 
     def document_new(sef):
         return {
@@ -203,38 +234,62 @@ class CommandProcessor():
         network_name = self._validate_network_name_url(3)
         amount = self._validate_amount(4, DEFAULT_REQUEST_TOKEN_AMOUNT)
         if sub_command == 'tokens':
+
             node_url = self._validate_network_name_to_value(network_name)
-            # create a request acocunt on the test network
-
-            # request the ocean tokens amount to the temp account
-
-            print('chain status', self._wallet.get_chain_status(node_url))
-
             password = secrets.token_hex(32)
             request_address = self._wallet.new_account(password, node_url)
-            print(f'created temp account {request_address}')
-            time.sleep(2)
+            node_status = self._wallet.get_chain_status(node_url)
+
+            if node_status and not node_status['blockGap'] is None:
+                self._add_output(f'Please wait: The local node is not yet in sync')
+                return
+
+            logger.info(f'created temp account {request_address}')
             ocean = Ocean(keeper_url=node_url)
             account = OceanAccount(ocean, request_address, password)
             faucet_url = self._validate_network_name_to_value(network_name, False, 'faucet_url')
+            logger.debug('requesting ether from faucet')
             self._wallet.get_ether(request_address, faucet_url)
-            print(f'{request_address} ether tokens: {account.ether_balance}')
 
+            logger.debug('wating for ether to be available in register account')
+            while True:
+                account = OceanAccount(ocean, request_address, password)
+                if account.ether_balance > 0:
+                    break
+                time.sleep(1)
+            logger.debug(f'{request_address} ether tokens: {account.ether_balance}')
+
+            logger.debug('requesting ocean tokens')
             account.unlock(password)
             account.request_tokens(amount)
-            print(f'{request_address} ocean tokens: {account.ocean_balance}')
-            print('chain status', self._wallet.get_chain_status(node_url))
-            time.sleep(2)
-            print(f'transfer {amount} from {request_address} to {address}')
-            account.transfer_token(address, amount)
-            account.transfer_ether(address, 0.05 - 0.00000001)
-            time.sleep(2)
 
-            account = OceanAccount(ocean, address)
+            logger.debug('waiting for ocean tokens to be available in request account')
+            while True:
+                account = OceanAccount(ocean, request_address, password)
+                if account.ocean_balance > 0:
+                    break
+                time.sleep(1)
+
+            logger.debug(f'{request_address} ocean tokens: {account.ocean_balance}')
+            logger.debug(f'{request_address} ether: {account.ether_balance}')
+
+            node_status = self._wallet.get_chain_status(node_url)
+            if node_status and not node_status['blockGap'] is None:
+                self._add_output(f'Please wait: The local node is not yet in sync')
+                return
+
+            logger.debug(f'transfer {amount} from {request_address} to {address}')
+            time.sleep(2)
+            account.unlock(password)
+            account.transfer_token(address, amount)
+            ether_amount = 0
+            if account.ether_balance > 0:
+                ether_amount = float(account.ether_balance) - 0.0000000001
+                account.transfer_ether(address, ether_amount)
 
             # delete the request account
-            # self._wallet.delete_account(request_address, password, node_url)
-            self._add_output(f'{address}  ocean tokens: {account.ocean_balance}')
+            self._wallet.delete_account(request_address, password, node_url)
+            self._add_output(f'sent {amount} ocean tokens and {ether_amount:.4f} ether to account {address}')
 
         elif sub_command == 'ether':
             faucet_url = self._validate_network_name_to_value(network_name, False, 'faucet_url')

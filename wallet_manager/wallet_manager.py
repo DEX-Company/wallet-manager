@@ -1,6 +1,7 @@
 
 import json
 import requests
+import logging
 
 from web3 import (
     Web3,
@@ -10,6 +11,7 @@ from web3 import (
 
 from eth_account import Account as EthAccount
 from wallet_manager.key_chain import KeyChain
+from wallet_manager import logger
 
 
 def as_attrdict(val):
@@ -138,8 +140,6 @@ class WalletManager():
             'Content-Type': 'application/json'
         }
         response = requests.post(url, json = data, headers=headers)
-#        print('response ', response.text, response.status_code)
-        if response.status_code == 200:
-            return True, None, None
-#        print('error ', response.text)
-        return False, response.status_code, response.text
+        logger.debug(f'response {response.text} {response.status_code}')
+        if response.status_code != 200:
+            raise ValueError(f'{response.status_code} {response.text}')
