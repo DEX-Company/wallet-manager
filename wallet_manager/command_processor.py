@@ -79,7 +79,7 @@ class CommandProcessor():
         else:
             node_url = self._validate_network_name_to_value(network_name)
             address = self._wallet.new_account(password, node_url)
-        self._add_output(f'new account address {address}')
+        self._add_output(address)
 
     def document_delete(self):
         return {
