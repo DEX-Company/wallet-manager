@@ -14,7 +14,7 @@ with open('CHANGELOG.md') as changelog_file:
     changelog = changelog_file.read()
 
 install_requirements = [
-    'starfish-py==0.7.1',
+    'starfish-py==0.5.5',
 ]
 
 setup_requirements = ['pytest-runner', ]
