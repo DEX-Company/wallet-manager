@@ -71,6 +71,10 @@ def main():
         show_command_help(processor)
         return
 
+#    if args.commands[0] == 'start':
+#        start_node()
+#        return
+
     try:
         processor.process(args.commands)
     except CommandProcessError as e:
