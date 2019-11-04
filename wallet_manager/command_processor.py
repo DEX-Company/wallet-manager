@@ -154,10 +154,13 @@ class CommandProcessor():
 
         if network_name == 'local':
             result = self._wallet.export_account_json(address, password)
+            key = self._wallet.export_account_key(address, password)
         else:
             node_url = self._validate_network_name_to_value(network_name)
             result = self._wallet.export_account_json(address, password, node_url)
+            key = self._wallet.export_account_key(address, password, node_url)
 
+        print(f'Private key {key.hex()} exported')
         self._add_output(f'Address {address} key:')
         self._add_output(result)
 
