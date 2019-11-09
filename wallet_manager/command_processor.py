@@ -461,7 +461,7 @@ class CommandProcessor():
             amount = int(self._commands[index])
 
         if amount is None:
-            raise CommandProcessError(f'Please provide an  "{command_list_text}"')
+            raise CommandProcessError(f'Please provide an amount')
         return amount
 
     def _expand_document_item(self, app_name, value):
