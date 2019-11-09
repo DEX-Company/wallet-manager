@@ -1,3 +1,5 @@
+![](https://github.com/DEX-Company/wallet-manage/workflows/testing/badge.svg)
+
 # Wallet Manager
 
 **Provide account and wallet management on the Ocean Network**
