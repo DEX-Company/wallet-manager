@@ -17,6 +17,11 @@ DEFAULT_KEY_CHAIN_FILENAME = 'key_chain.json'
 APP_NAME = 'wallet_manager.py'
 
 def show_command_help(processor):
+    """
+
+    Show the command line help texts.
+
+    """
     items = processor.command_document_list(APP_NAME)
     print('\nThe following commands can be used:\n')
     print("\n".join(items))
@@ -54,6 +59,7 @@ def main():
     args = parser.parse_args()
     processor = CommandProcessor(key_chain_filename=args.key_chain)
 
+    # check for debug
     if args.debug:
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
         logger.setLevel(logging.DEBUG)
@@ -63,14 +69,17 @@ def main():
         logging.getLogger('config').setLevel(logging.INFO)
         logger.debug('set to debug')
 
+    # show basic help
     if args.help_commands:
         show_command_help(processor)
         return
 
+    # if no cmmand then show the command help test
     if len(args.commands) == 0:
         show_command_help(processor)
         return
 
+    # now try to execute the command
     try:
         processor.process(args.commands)
     except CommandProcessError as e:
