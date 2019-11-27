@@ -75,7 +75,7 @@ class KeyChain():
 
         :return: bool True if the address is in this Keychain.
 
-        """"
+        """
         return address in self._key_list
 
     @property
@@ -86,6 +86,6 @@ class KeyChain():
 
         :return: List of addresses.
         :type: list
-        
+
         """
         return list(self._key_list.keys())
