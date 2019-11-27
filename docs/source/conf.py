@@ -23,8 +23,8 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 project = 'wallet manager'
-copyright = 'dex and nemo contributors'
-author = 'dex and nemo contributors'
+copyright = 'dex and wallet manager contributors'
+author = 'dex and wallet manager contributors'
 
 # The full version, including alpha/beta/rc tags
 release = '0.0.1'
@@ -92,7 +92,6 @@ highlight_language = 'python3'
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
-#    'nemoapi': ('http://shrimp.octet.services/', None)
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -178,7 +177,7 @@ print("Done removal.")
 
 # Fix for
 # https://github.com/sphinx-doc/sphinx/issues/3866
-_desired_base_module = 'nemo'
+_desired_base_module = 'walletmanager'
 
 class MyPythonDomain(PythonDomain):
     def find_obj(self, env, modname, classname, name, type, searchmode=0):
