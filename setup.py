@@ -37,6 +37,14 @@ dev_requirements = [
     'watchdog',
 ]
 
+docs_requirements = [
+    'Sphinx',
+    'sphinx-rtd-theme',
+    'sphinxcontrib-apidoc',
+    'sphinxcontrib-plantuml',
+    'sphinx-automodapi',
+    'pygments',
+]
 
 packages = []
 for d, _, _ in os.walk('wallet_manager'):
@@ -56,7 +64,7 @@ setup(
     description="Wallet Manager for the Ocean Network",
     extras_require={
         'test': test_requirements,
-        'dev': dev_requirements + test_requirements,
+        'dev': dev_requirements + test_requirements + docs_requirements,
     },
     install_requires=install_requirements,
     license="Apache Software License 2.0",
