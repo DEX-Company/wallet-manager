@@ -95,7 +95,7 @@ class CommandProcessor():
     def command_new(self):
         """
 
-        Create a new account
+        Create a new account.
 
         """
         address = ''
@@ -120,7 +120,7 @@ class CommandProcessor():
     def command_delete(self):
         """
 
-        Delete an account
+        Delete an account.
 
         """
         address = self._validate_address(1)
@@ -271,15 +271,23 @@ class CommandProcessor():
     def command_get(self):
         """
 
-        Get ether for an account.
+        Get ether or Ocean tokens for an account.
 
         """
+
+        # test to see if this is a get token or get ether
         sub_command = self._validate_sub_command(1, ['ether', 'tokens'])
+        # get the address to send the ether or tokens too
         address = self._validate_address(2)
+        # get the network name / type
         network_name = self._validate_network_name_url(3)
+        # get the optional amount to get.
         amount = self._validate_amount(4, DEFAULT_REQUEST_TOKEN_AMOUNT)
+
+        # do the get Ocean tokens
         if sub_command == 'tokens':
 
+            # first create a new account to request tokesn into
             node_url = self._validate_network_name_to_value(network_name)
             password = secrets.token_hex(32)
             request_address = self._wallet.new_account(password, node_url)
@@ -289,6 +297,7 @@ class CommandProcessor():
                 self._add_output(f'Please wait: The local node is not yet in sync')
                 return
 
+            # after creating a temp account, no request tokens for this account.
             logger.info(f'created temp account {request_address}')
             ocean = Ocean(keeper_url=node_url)
             account = OceanAccount(ocean, request_address, password)
@@ -298,6 +307,7 @@ class CommandProcessor():
             logger.debug(f'requesting ether from faucet at {faucet_url}')
             self._wallet.get_ether(request_address, faucet_url)
 
+            # we need to request some ether for this temp account.
             logger.debug('wating for ether to be available in register account')
             while True:
                 account = OceanAccount(ocean, request_address, password)
@@ -310,6 +320,7 @@ class CommandProcessor():
             account.unlock(password)
             account.request_tokens(amount)
 
+            # we need to wait for the transaction to complete to send the Ocean tokens.
             logger.debug('waiting for ocean tokens to be available in request account')
             while True:
                 account = OceanAccount(ocean, request_address, password)
@@ -325,6 +336,7 @@ class CommandProcessor():
                 self._add_output(f'Please wait: The local node is not yet in sync')
                 return
 
+            # now transfer from a new temp account to the given account by this parameter
             logger.debug(f'transfer {amount} from {request_address} to {address}')
             time.sleep(2)
             account.unlock(password)
@@ -339,6 +351,8 @@ class CommandProcessor():
             self._add_output(f'sent {amount} ocean tokens and {ether_amount:.4f} ether to account {address}')
 
         elif sub_command == 'ether':
+
+            # if getting ether then request from a faucet or a dev faucet account.
             node_url = self._validate_network_name_to_value(network_name)
             chain_name = self._wallet.get_chain_name(node_url)
             logger.debug(f'chain name is {chain_name}')
@@ -372,6 +386,8 @@ class CommandProcessor():
         Request Ocean tokens for an account.
 
         """
+
+        # do a basic starfish request tokens.
         sub_command = self._validate_sub_command(1, ['tokens'])
         address = self._validate_address(2)
         password = self._validate_password(3)
@@ -472,7 +488,7 @@ class CommandProcessor():
         """
 
         Show the documentation for a command.
-        
+
         """
         items = []
         for name in dir(self):
