@@ -1,3 +1,11 @@
+"""
+
+Command processor, to control the command line arguments.
+
+This module then call the walletmanager library.
+
+"""
+
 import inspect
 import re
 import os.path
@@ -56,12 +64,26 @@ class CommandProcessor():
     }
 
     def __init__(self, key_chain_filename=None):
+        """
+
+        Start up the command line library.
+
+        :param str key_chain_filename: Optional key chain storage file that holds
+            the local private keys.
+
+
+        """
         self._commands = None
         self._output = []
         self._wallet = WalletManager(key_chain_filename=key_chain_filename)
 
 
     def document_new(sef):
+        """
+
+        Document a new account comand.
+
+        """
         return {
             'description': 'Create account local and host',
             'params' :[
@@ -71,6 +93,11 @@ class CommandProcessor():
         }
 
     def command_new(self):
+        """
+
+        Create a new account
+
+        """
         address = ''
         password = self._validate_password(1)
         network_name = self._validate_network_name_url(2, 'local')
@@ -91,6 +118,11 @@ class CommandProcessor():
         }
 
     def command_delete(self):
+        """
+
+        Delete an account
+
+        """
         address = self._validate_address(1)
         password = self._validate_password(2)
         network_name = self._validate_network_name_url(3, 'local')
@@ -117,6 +149,13 @@ class CommandProcessor():
             }
         ]
     def command_copy(self):
+        """
+
+        Copy an account.
+
+        TODO: No Implemented!
+
+        """
         pass
 
     def document_list(self):
@@ -129,6 +168,11 @@ class CommandProcessor():
         }
 
     def command_list(self):
+        """
+
+        List accounts.
+
+        """
         result = None
         network_name = self._validate_network_name_url(1, 'local')
         if network_name == 'local':
@@ -148,6 +192,11 @@ class CommandProcessor():
         }
 
     def command_export(self):
+        """
+
+        Export an account.
+
+        """
         address = self._validate_address(1)
         password = self._validate_password(2)
         network_name = self._validate_network_name_url(3, 'local')
@@ -172,6 +221,11 @@ class CommandProcessor():
         }
 
     def command_import(self):
+        """
+
+        Import an account
+
+        """
         json_text = self._validate_json_text(1)
         password = self._validate_password(2)
         network_name = self._validate_network_name_url(3, 'local')
@@ -192,6 +246,11 @@ class CommandProcessor():
         }
 
     def command_password(self):
+        """
+
+        Change an account password.
+
+        """
         pass
 
     def document_get(self):
@@ -210,6 +269,11 @@ class CommandProcessor():
             }
         ]
     def command_get(self):
+        """
+
+        Get ether for an account.
+
+        """
         sub_command = self._validate_sub_command(1, ['ether', 'tokens'])
         address = self._validate_address(2)
         network_name = self._validate_network_name_url(3)
@@ -303,6 +367,11 @@ class CommandProcessor():
             }
         ]
     def command_request(self):
+        """
+
+        Request Ocean tokens for an account.
+
+        """
         sub_command = self._validate_sub_command(1, ['tokens'])
         address = self._validate_address(2)
         password = self._validate_password(3)
@@ -324,6 +393,11 @@ class CommandProcessor():
             ],
         }
     def command_balance(self):
+        """
+
+        Get an account balance.
+
+        """
         address = self._validate_address(1)
         network_name = self._validate_network_name_url(2)
         node_url = self._validate_network_name_to_value(network_name)
@@ -348,6 +422,11 @@ class CommandProcessor():
             }
         ]
     def command_send(self):
+        """
+
+        Send ether or Ocean tokens from one account to another account.
+
+        """
         sub_command = self._validate_sub_command(1, ['ether', 'tokens'])
 
         from_address = self._validate_address(2, field_name='from_address')
@@ -366,9 +445,21 @@ class CommandProcessor():
             self._wallet.send_ether(from_address, password, to_address, amount, node_url)
 
     def command_test(self):
+        """
+
+        Test out the command line.
+
+        """
         print(self._commands)
 
     def process(self, commands):
+        """
+
+        Process a command line.
+
+        :param list commands: List of commands to process.
+
+        """
         self._commands = commands
         method_name = f'command_{commands[0]}'
         if hasattr(self, method_name):
@@ -378,6 +469,11 @@ class CommandProcessor():
             raise CommandProcessError(f'Invalid comamnd "{commands[0]}"')
 
     def command_document_list(self, app_name):
+        """
+
+        Show the documentation for a command.
+        
+        """
         items = []
         for name in dir(self):
             if re.match('^document_', name):
