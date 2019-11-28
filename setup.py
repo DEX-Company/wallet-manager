@@ -3,7 +3,10 @@
 
 """The setup script."""
 
-from setuptools import setup
+from setuptools import (
+    setup,
+    find_packages,
+)
 import os
 from os.path import join
 
@@ -17,7 +20,16 @@ install_requirements = [
     'starfish-py==0.4.11',
 ]
 
-setup_requirements = ['pytest-runner', ]
+setup_requirements = [
+    'pytest-runner',
+]
+
+dev_requirements = [
+    'bumpversion',
+    'pkginfo',
+    'twine',
+    'watchdog',
+]
 
 test_requirements = [
     'codacy-coverage',
@@ -28,13 +40,7 @@ test_requirements = [
     'pyflakes',
     'pytest',
     'tox',
-]
-
-dev_requirements = [
-    'bumpversion',
-    'pkginfo',
-    'twine',
-    'watchdog',
+    'pylint',
 ]
 
 docs_requirements = [
@@ -44,12 +50,8 @@ docs_requirements = [
     'sphinxcontrib-plantuml',
     'sphinx-automodapi',
     'pygments',
+     'sphinxcontrib-inlinesyntaxhighlight',
 ]
-
-packages = []
-for d, _, _ in os.walk('wallet_manager'):
-    if os.path.exists(join(d, '__init__.py')):
-        packages.append(d.replace(os.path.sep, '.'))
 
 setup(
     author="dex-company",
@@ -73,7 +75,7 @@ setup(
     include_package_data=True,
     keywords='wallet manager',
     name='wallet-manager',
-    packages=packages,
+    packages=find_packages(),
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,

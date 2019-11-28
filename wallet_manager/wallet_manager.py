@@ -126,10 +126,10 @@ class WalletManager():
         :param str address: Address of the account to export.
         :param str password: Passmord of the account to export.
         :param str url: URL of the node to export from, else if None then export
-        from the keychain.
+            from the keychain.
 
         :return: JSON object containing information about the account, including
-        the encrypted priwate key.
+            the encrypted priwate key.
 
         """
         if url:
